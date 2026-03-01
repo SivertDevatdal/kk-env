@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sjakk – Klassekampen</title>
+  <link rel="stylesheet" href="trade-gothic-lt-std-webfont/style.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Trade Gothic LT Std Regular', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      color: #1a1a1a;
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .header-left { display: flex; align-items: center; }
+    .header-center { position: absolute; left: 50%; transform: translateX(-50%); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .btn-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; font-size: 15px;
+      color: #d42b2b; cursor: pointer; text-decoration: none;
+      font-weight: 500; transition: opacity .2s;
+    }
+    .btn-back:hover { opacity: .7; }
+    .btn-back svg { width: 18px; height: 18px; }
+    .logo {
+      display: flex; align-items: center;
+      text-decoration: none;
+    }
+    .logo svg { height: 38px; width: auto; fill: #d42b2b; }
+    @media (max-width: 600px) { .logo svg { height: 26px; } }
+    .btn-cta {
+      background: #d42b2b; color: #fff; border: none;
+      border-radius: 28px; padding: 10px 22px; font-size: 14px;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: background .2s;
+    }
+    .btn-cta:hover { background: #b82222; }
+
+    .chess-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .game-tag {
+      display: inline-block;
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #d42b2b;
+      background: rgba(212,43,43,.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .game-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .game-subtitle {
+      font-size: 15px;
+      color: #666;
+    }
+
+    .difficulty-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .diff-tab {
+      padding: 8px 20px;
+      border: 2px solid #e5e5e5;
+      border-radius: 24px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .diff-tab:hover { border-color: #ccc; }
+    .diff-tab.active {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+
+    .puzzle-info {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f8f8f8;
+      border-radius: 12px;
+    }
+    .puzzle-info .turn {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .puzzle-info .turn span {
+      color: #d42b2b;
+    }
+    .puzzle-info .goal {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .board-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      border: 2px solid #1a1a1a;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 1;
+    }
+    .cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0;
+      cursor: pointer;
+      position: relative;
+      transition: background .15s;
+      user-select: none;
+    }
+    .cell.light { background: #f0d9b5; }
+    .cell.dark { background: #b58863; }
+    .cell.selected { background: #829769 !important; }
+    .cell.highlight { background: rgba(255,255,50,.45) !important; }
+    .cell.move-target::after {
+      content: '';
+      position: absolute;
+      width: 30%;
+      height: 30%;
+      border-radius: 50%;
+      background: rgba(0,0,0,.2);
+    }
+    .cell.move-target.has-piece::after {
+      width: 90%;
+      height: 90%;
+      border-radius: 50%;
+      background: none;
+      border: 3px solid rgba(0,0,0,.2);
+    }
+    .cell .piece {
+      font-size: min(5.5vw, 48px);
+      line-height: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,.3));
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .btn-ctrl {
+      padding: 10px 24px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .btn-ctrl:hover { border-color: #ccc; background: #f8f8f8; }
+    .btn-ctrl.primary {
+      background: #d42b2b;
+      color: #fff;
+      border-color: #d42b2b;
+    }
+    .btn-ctrl.primary:hover { background: #b82222; }
+
+    .move-history {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .move-history h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    .moves-list {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .move-chip {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #f0f0f0;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+    }
+    .move-chip.correct { background: #e8f5e9; color: #2e7d32; }
+    .move-chip.wrong { background: #fce4ec; color: #c62828; }
+
+    .result-banner {
+      text-align: center;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .result-banner.win {
+      background: #e8f5e9;
+      display: block;
+    }
+    .result-banner.lose {
+      background: #fce4ec;
+      display: block;
+    }
+    .result-banner h2 {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .result-banner p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .3s;
+      z-index: 200;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── iPad ─────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .chess-container { max-width: 600px; padding: 28px 20px 50px; }
+    }
+
+    /* ── iPad mini / small tablets ────────────── */
+    @media (max-width: 768px) {
+      header { padding: 12px 16px; }
+      .chess-container { padding: 24px 16px 40px; }
+      .game-title { font-size: 28px; }
+      .board { max-width: 420px; }
+      .cell .piece { font-size: 44px; }
+    }
+
+    /* ── iPhone (all sizes) ───────────────────── */
+    @media (max-width: 600px) {
+      header { padding: 10px 14px; }
+      .header-cta { display: none; }
+      .btn-cta { padding: 8px 16px; font-size: 13px; }
+      .chess-container { padding: 20px 12px 32px; }
+      .game-title { font-size: 24px; }
+      .game-subtitle { font-size: 14px; }
+      .difficulty-tabs { gap: 6px; }
+      .diff-tab { padding: 7px 16px; font-size: 13px; }
+      .board { max-width: 100%; }
+      .cell .piece { font-size: 6vw; }
+      .puzzle-info { padding: 12px; }
+      .controls { gap: 8px; }
+      .btn-ctrl { padding: 9px 18px; font-size: 13px; }
+      .result-banner { padding: 18px; }
+      .result-banner h2 { font-size: 20px; }
+    }
+
+    /* ── iPhone SE / small phones ─────────────── */
+    @media (max-width: 375px) {
+      .chess-container { padding: 16px 8px 24px; }
+      .game-title { font-size: 22px; }
+      .diff-tab { padding: 6px 12px; font-size: 12px; }
+      .cell .piece { font-size: 7vw; }
+      .btn-ctrl { padding: 8px 14px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="index.html" class="btn-back" aria-label="Tilbake til forsiden">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Spill
+    </a>
+  </div>
+  <div class="header-center">
+    <a href="index.html" class="logo" aria-label="Klassekampen">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 39">
+        <path d="M183.903 37.9992H189.193V20.1763L193.992 38.0029H200.75V1.12608H195.46V18.8528L190.661 1.12608H183.903V37.9992ZM182.044 37.9992V31.2412H176.262V22.6237H181.06V15.13H176.262V7.88406H182.04V1.12608H169.992V37.9992H182.044ZM159.123 8.37206H160.002C161.326 8.37206 162.354 9.83974 162.354 14.4461C162.354 19.0007 161.326 20.5202 160.002 20.5202H159.123V8.37206ZM152.853 37.9992H159.123V27.2264H159.807C164.753 27.2264 168.62 23.4555 168.62 14.4461C168.62 5.09288 164.753 1.12608 159.807 1.12608H152.853V37.9992ZM127.584 37.9992H133.362V16.1097L136.889 37.9992H140.904L144.431 16.1097V37.9992H150.701V1.12608H141.496L139.144 19.3926L136.793 1.12608H127.588V37.9992H127.584ZM116.615 26.0027L117.939 9.79168L119.262 26.0027H116.615ZM109.758 37.9992H115.636L116.028 33.3485H119.846L120.238 37.9992H126.213L122.59 1.12238H113.384L109.758 37.9992ZM92.6186 37.9992H98.8886V21.4961L102.415 37.9992H109.369L104.715 18.265L109.366 1.12608H102.316L98.8886 16.6975V1.12608H92.6186V37.9992ZM78.7108 37.9992H90.7591V31.2412H84.9808V22.6237H89.7794V15.13H84.9808V7.88406H90.7591V1.12608H78.7108V37.9992ZM62.3038 28.6978C62.7918 36.3874 66.0266 38.5427 70.1894 38.5427C75.036 38.5427 77.8272 35.1156 77.8272 29.0416C77.8272 20.3723 69.0618 14.3019 69.0618 9.01162C69.0618 7.78794 69.7457 7.34801 70.3335 7.34801C71.4093 7.34801 71.853 8.76763 71.853 12.0505L77.6313 10.4349C77.1433 2.74533 74.0563 0.590027 70.0415 0.590027C65.2909 0.590027 62.4998 4.06514 62.4998 9.1595C62.4998 18.4166 71.365 24.243 71.365 30.1174C71.365 31.293 70.6811 31.781 70.0932 31.781C68.8696 31.781 68.3779 30.3614 68.3779 27.0785L62.3038 28.6978ZM46.2924 28.6978C46.7804 36.3874 50.0152 38.5427 54.178 38.5427C59.0246 38.5427 61.8158 35.1156 61.8158 29.0416C61.8158 20.3723 53.0504 14.3019 53.0504 9.01162C53.0504 7.78794 53.7343 7.34801 54.3222 7.34801C55.398 7.34801 55.8416 8.76763 55.8416 12.0505L61.6199 10.4349C61.1319 2.74533 58.045 0.590027 54.0301 0.590027C49.2795 0.590027 46.4884 4.06514 46.4884 9.1595C46.4884 18.4166 55.3536 24.243 55.3536 30.1174C55.3536 31.293 54.6697 31.781 54.0819 31.781C52.8582 31.781 52.3665 30.3614 52.3665 27.0785L46.2924 28.6978ZM36.6915 26.0027L38.015 9.79168L39.3385 26.0027H36.6915ZM29.8374 37.9992H35.7155L36.1074 33.3485H39.9263L40.3182 37.9992H46.2924L42.6694 1.12238H33.4641L29.8374 37.9992ZM18.4768 37.9992H28.9575V30.5092H25.0388V1.12608H18.4768V37.9992ZM0.75 1.12608V38.0029H7.01629V21.4961L10.5432 37.9992H17.4971L12.8426 18.265L17.4971 1.12608H10.4433L7.01629 16.6975V1.12608H0.75Z"/>
+      </svg>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="btn-cta header-cta">Prøv for 1 krone</button>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<main class="chess-container">
+  <div class="game-header">
+    <span class="game-tag">Ukens puslespill</span>
+    <h1 class="game-title">Sjakkpuslespill</h1>
+    <p class="game-subtitle">Finn den beste trekksekvensen</p>
+  </div>
+
+  <div class="difficulty-tabs">
+    <button class="diff-tab active" data-diff="easy">Lett</button>
+    <button class="diff-tab" data-diff="medium">Middels</button>
+    <button class="diff-tab" data-diff="hard">Vanskelig</button>
+  </div>
+
+  <div class="puzzle-info" id="puzzleInfo">
+    <div class="turn"><span id="turnColor">Hvit</span> i trekket</div>
+    <div class="goal" id="goalText">Finn matt i 1 trekk</div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-ctrl" id="btnHint">Hint</button>
+    <button class="btn-ctrl" id="btnReset">Start på nytt</button>
+  </div>
+
+  <div class="move-history" id="moveHistory" style="display:none;">
+    <h3>Trekk</h3>
+    <div class="moves-list" id="movesList"></div>
+  </div>
+
+  <div class="result-banner" id="resultBanner">
+    <h2 id="resultTitle"></h2>
+    <p id="resultText"></p>
+  </div>
+</main>
+
+<script>
+const PIECES = {
+  K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙',
+  k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟'
+};
+
+const PUZZLES = {
+  easy: [
+    {
+      fen: '6k1/5ppp/8/8/8/8/1Q6/4K3 w',
+      solution: [['b2','g7']],
+      goal: 'Finn matt i 1 trekk'
+    },
+    {
+      fen: '5rk1/5Npp/8/8/8/8/1Q6/4K3 w',
+      solution: [['b2','g7']],
+      goal: 'Finn matt i 1 trekk'
+    },
+    {
+      fen: 'r1bqk2r/pppp1Qpp/2n2n2/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR w',
+      solution: [['f7','f6']],
+      goal: 'Finn matt i 1 trekk'
+    }
+  ],
+  medium: [
+    {
+      fen: '2r3k1/5ppp/8/8/8/2B5/1Q3PPP/6K1 w',
+      solution: [['b2','g7'],['_','_'],['c3','g7']],
+      goal: 'Finn matt i 2 trekk'
+    },
+    {
+      fen: 'r1b1kb1r/pppp1ppp/5q2/4p3/3nP3/3P4/PPP2PPP/RNBQKB1R w',
+      solution: [['d1','a4']],
+      goal: 'Vinn materiale'
+    },
+    {
+      fen: '6k1/pp3ppp/8/3R4/8/8/PP3PPP/2r3K1 w',
+      solution: [['d5','d8'],['c1','d1'],['d8','d1']],
+      goal: 'Finn matt i 2 trekk'
+    }
+  ],
+  hard: [
+    {
+      fen: 'r1bqr1k1/ppp2ppp/2np4/2bNpP2/4P1Q1/3B4/PPP3PP/R1B1K2R w',
+      solution: [['g4','g7'],['g8','g7'],['d3','h7']],
+      goal: 'Finn matt i 2 trekk'
+    },
+    {
+      fen: '3r2k1/pb3pp1/1p5p/8/3N4/P3q1P1/1P3Q1P/5RK1 w',
+      solution: [['d4','e6'],['e3','e6'],['f2','f7']],
+      goal: 'Finn matt i 2 trekk'
+    },
+    {
+      fen: 'r4rk1/ppp2ppp/2n2q2/3p4/3P4/2PB1N2/PP3PPP/R2Q1RK1 w',
+      solution: [['d3','h7'],['g8','h7'],['f3','g5']],
+      goal: 'Vinn materiale med angrep'
+    }
+  ]
+};
+
+let board = [];
+let selectedCell = null;
+let currentDifficulty = 'easy';
+let currentPuzzle = null;
+let solutionStep = 0;
+let moveHistoryArr = [];
+let puzzleSolved = false;
+let puzzleFailed = false;
+let hintsUsed = 0;
+
+function parseFEN(fen) {
+  const parts = fen.split(' ');
+  const rows = parts[0].split('/');
+  const b = [];
+  for (let r = 0; r < 8; r++) {
+    b[r] = [];
+    let c = 0;
+    for (const ch of rows[r]) {
+      if (/\d/.test(ch)) {
+        for (let i = 0; i < parseInt(ch); i++) b[r][c++] = null;
+      } else {
+        b[r][c++] = ch;
+      }
+    }
+  }
+  return { board: b, turn: parts[1] || 'w' };
+}
+
+function isWhite(piece) { return piece && piece === piece.toUpperCase(); }
+function isBlack(piece) { return piece && piece === piece.toLowerCase(); }
+
+function getPseudoMoves(b, row, col) {
+  const piece = b[row][col];
+  if (!piece) return [];
+  const moves = [];
+  const white = isWhite(piece);
+  const type = piece.toLowerCase();
+
+  function addIfValid(r, c) {
+    if (r < 0 || r > 7 || c < 0 || c > 7) return false;
+    const target = b[r][c];
+    if (target && isWhite(target) === white) return false;
+    moves.push([r, c]);
+    return !target;
+  }
+
+  function addSliding(dirs) {
+    for (const [dr, dc] of dirs) {
+      for (let i = 1; i < 8; i++) {
+        if (!addIfValid(row + dr * i, col + dc * i)) break;
+      }
+    }
+  }
+
+  if (type === 'p') {
+    const dir = white ? -1 : 1;
+    const startRow = white ? 6 : 1;
+    if (row + dir >= 0 && row + dir <= 7 && !b[row + dir][col]) {
+      moves.push([row + dir, col]);
+      if (row === startRow && !b[row + 2 * dir][col]) {
+        moves.push([row + 2 * dir, col]);
+      }
+    }
+    for (const dc of [-1, 1]) {
+      const nr = row + dir, nc = col + dc;
+      if (nr >= 0 && nr <= 7 && nc >= 0 && nc <= 7 && b[nr][nc] && isWhite(b[nr][nc]) !== white) {
+        moves.push([nr, nc]);
+      }
+    }
+  } else if (type === 'n') {
+    for (const [dr, dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) {
+      addIfValid(row + dr, col + dc);
+    }
+  } else if (type === 'b') {
+    addSliding([[-1,-1],[-1,1],[1,-1],[1,1]]);
+  } else if (type === 'r') {
+    addSliding([[-1,0],[1,0],[0,-1],[0,1]]);
+  } else if (type === 'q') {
+    addSliding([[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]);
+  } else if (type === 'k') {
+    for (const [dr, dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]) {
+      addIfValid(row + dr, col + dc);
+    }
+  }
+
+  return moves;
+}
+
+function toAlgebraic(row, col) {
+  return String.fromCharCode(97 + col) + (8 - row);
+}
+
+function fromAlgebraic(sq) {
+  return [8 - parseInt(sq[1]), sq.charCodeAt(0) - 97];
+}
+
+function renderBoard() {
+  const $board = document.getElementById('board');
+  $board.innerHTML = '';
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
+      if (selectedCell && selectedCell[0] === r && selectedCell[1] === c) {
+        cell.classList.add('selected');
+      }
+
+      if (board[r][c]) {
+        const span = document.createElement('span');
+        span.className = 'piece';
+        span.textContent = PIECES[board[r][c]];
+        cell.appendChild(span);
+      }
+
+      cell.addEventListener('click', () => onCellClick(r, c));
+      $board.appendChild(cell);
+    }
+  }
+  showLegalMoves();
+}
+
+function showLegalMoves() {
+  if (!selectedCell) return;
+  const [sr, sc] = selectedCell;
+  const moves = getPseudoMoves(board, sr, sc);
+  const cells = document.querySelectorAll('.cell');
+  for (const [mr, mc] of moves) {
+    const idx = mr * 8 + mc;
+    cells[idx].classList.add('move-target');
+    if (board[mr][mc]) cells[idx].classList.add('has-piece');
+  }
+}
+
+function onCellClick(row, col) {
+  if (puzzleSolved || puzzleFailed) return;
+
+  const puzzle = currentPuzzle;
+  const turn = puzzle.parsedTurn;
+  const playerWhite = turn === 'w';
+
+  if (selectedCell) {
+    const [sr, sc] = selectedCell;
+    const piece = board[sr][sc];
+    if (piece && isWhite(piece) === playerWhite) {
+      const moves = getPseudoMoves(board, sr, sc);
+      const isLegal = moves.some(m => m[0] === row && m[1] === col);
+      if (isLegal) {
+        makePlayerMove(sr, sc, row, col);
+        selectedCell = null;
+        renderBoard();
+        return;
+      }
+    }
+    selectedCell = null;
+    if (board[row][col] && isWhite(board[row][col]) === playerWhite) {
+      selectedCell = [row, col];
+    }
+    renderBoard();
+    return;
+  }
+
+  if (board[row][col] && isWhite(board[row][col]) === playerWhite) {
+    selectedCell = [row, col];
+    renderBoard();
+  }
+}
+
+function makePlayerMove(sr, sc, dr, dc) {
+  const moveStr = toAlgebraic(sr, sc);
+  const destStr = toAlgebraic(dr, dc);
+
+  const expected = currentPuzzle.solution[solutionStep];
+  if (!expected) return;
+
+  const [expFrom, expTo] = expected;
+
+  if (moveStr === expFrom && destStr === expTo) {
+    board[dr][dc] = board[sr][sc];
+    board[sr][sc] = null;
+    addMoveToHistory(moveStr + destStr, true);
+    solutionStep++;
+
+    if (solutionStep >= currentPuzzle.solution.length) {
+      puzzleSolved = true;
+      showResult(true);
+      return;
+    }
+
+    setTimeout(() => {
+      makeOpponentMove();
+    }, 500);
+  } else {
+    addMoveToHistory(moveStr + destStr, false);
+    showToast('Feil trekk. Prøv igjen!');
+    puzzleFailed = true;
+    showResult(false);
+  }
+}
+
+function makeOpponentMove() {
+  const expected = currentPuzzle.solution[solutionStep];
+  if (!expected || expected[0] === '_') {
+    solutionStep++;
+
+    if (solutionStep >= currentPuzzle.solution.length) {
+      puzzleSolved = true;
+      showResult(true);
+      return;
+    }
+
+    const opResp = findAnyLegalResponse();
+    if (opResp) {
+      const [sr, sc, dr, dc] = opResp;
+      board[dr][dc] = board[sr][sc];
+      board[sr][sc] = null;
+      addMoveToHistory(toAlgebraic(sr, sc) + toAlgebraic(dr, dc), null);
+      renderBoard();
+    }
+    return;
+  }
+
+  const [fromSq, toSq] = expected;
+  const [sr, sc] = fromAlgebraic(fromSq);
+  const [dr, dc] = fromAlgebraic(toSq);
+  board[dr][dc] = board[sr][sc];
+  board[sr][sc] = null;
+  addMoveToHistory(fromSq + toSq, null);
+  solutionStep++;
+  renderBoard();
+}
+
+function findAnyLegalResponse() {
+  const puzzle = currentPuzzle;
+  const playerWhite = puzzle.parsedTurn === 'w';
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (p && isWhite(p) !== playerWhite) {
+        const moves = getPseudoMoves(board, r, c);
+        if (moves.length > 0) {
+          const [mr, mc] = moves[0];
+          return [r, c, mr, mc];
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function addMoveToHistory(moveStr, isCorrect) {
+  moveHistoryArr.push({ move: moveStr, correct: isCorrect });
+  const $hist = document.getElementById('moveHistory');
+  const $list = document.getElementById('movesList');
+  $hist.style.display = 'block';
+  const chip = document.createElement('span');
+  chip.className = 'move-chip';
+  if (isCorrect === true) chip.classList.add('correct');
+  else if (isCorrect === false) chip.classList.add('wrong');
+  chip.textContent = moveStr;
+  $list.appendChild(chip);
+}
+
+function showResult(won) {
+  const $banner = document.getElementById('resultBanner');
+  const $title = document.getElementById('resultTitle');
+  const $text = document.getElementById('resultText');
+  $banner.className = 'result-banner ' + (won ? 'win' : 'lose');
+  if (won) {
+    $title.textContent = 'Riktig!';
+    $text.textContent = hintsUsed > 0
+      ? `Du løste puslespillet med ${hintsUsed} hint.`
+      : 'Du løste puslespillet uten hint!';
+  } else {
+    $title.textContent = 'Feil trekk';
+    const sol = currentPuzzle.solution[0];
+    $text.textContent = `Riktig trekk var ${sol[0]}${sol[1]}. Prøv igjen!`;
+  }
+}
+
+function showToast(msg) {
+  const $t = document.getElementById('toast');
+  $t.textContent = msg;
+  $t.classList.add('show');
+  setTimeout(() => $t.classList.remove('show'), 2000);
+}
+
+function loadPuzzle(diff) {
+  currentDifficulty = diff;
+  const puzzleSet = PUZZLES[diff];
+  const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const idx = weekNum % puzzleSet.length;
+  currentPuzzle = { ...puzzleSet[idx] };
+  const parsed = parseFEN(currentPuzzle.fen);
+  board = parsed.board;
+  currentPuzzle.parsedTurn = parsed.turn;
+  selectedCell = null;
+  solutionStep = 0;
+  moveHistoryArr = [];
+  puzzleSolved = false;
+  puzzleFailed = false;
+  hintsUsed = 0;
+
+  document.getElementById('turnColor').textContent = parsed.turn === 'w' ? 'Hvit' : 'Svart';
+  document.getElementById('goalText').textContent = currentPuzzle.goal;
+  document.getElementById('moveHistory').style.display = 'none';
+  document.getElementById('movesList').innerHTML = '';
+  document.getElementById('resultBanner').className = 'result-banner';
+
+  renderBoard();
+}
+
+document.querySelectorAll('.diff-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.diff-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    loadPuzzle(tab.dataset.diff);
+  });
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  loadPuzzle(currentDifficulty);
+});
+
+document.getElementById('btnHint').addEventListener('click', () => {
+  if (puzzleSolved || puzzleFailed) return;
+  const expected = currentPuzzle.solution[solutionStep];
+  if (!expected) return;
+  hintsUsed++;
+  const [fromSq] = expected;
+  const [r, c] = fromAlgebraic(fromSq);
+  selectedCell = [r, c];
+  renderBoard();
+
+  const cells = document.querySelectorAll('.cell');
+  cells[r * 8 + c].classList.add('highlight');
+  showToast(`Hint: Prøv brikken på ${fromSq}`);
+});
+
+loadPuzzle('easy');
+</script>
+</body>
+</html>

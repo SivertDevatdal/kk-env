@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giljotinen – Klassekampen</title>
+  <link rel="stylesheet" href="trade-gothic-lt-std-webfont/style.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Trade Gothic LT Std Regular', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      color: #1a1a1a;
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .header-left { display: flex; align-items: center; }
+    .header-center { position: absolute; left: 50%; transform: translateX(-50%); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .btn-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; font-size: 15px;
+      color: #d42b2b; cursor: pointer; text-decoration: none;
+      font-weight: 500; transition: opacity .2s;
+    }
+    .btn-back:hover { opacity: .7; }
+    .btn-back svg { width: 18px; height: 18px; }
+    .logo {
+      display: flex; align-items: center;
+      text-decoration: none;
+    }
+    .logo svg { height: 38px; width: auto; fill: #d42b2b; }
+    @media (max-width: 600px) { .logo svg { height: 26px; } }
+    .btn-cta {
+      background: #d42b2b; color: #fff; border: none;
+      border-radius: 28px; padding: 10px 22px; font-size: 14px;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: background .2s;
+    }
+    .btn-cta:hover { background: #b82222; }
+
+    /* ── Two-Column Layout ─────────────────────── */
+    .guillotine-layout {
+      display: flex;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      gap: 48px;
+    }
+
+    .game-panel {
+      flex: 1.5;
+      min-width: 0;
+    }
+
+    .visual-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: sticky;
+      top: 90px;
+      align-self: flex-start;
+      padding-top: 12px;
+    }
+
+    /* ── Game Header ───────────────────────────── */
+    .game-header {
+      margin-bottom: 28px;
+    }
+    .game-tag {
+      display: inline-block;
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #d42b2b;
+      margin-bottom: 2px;
+    }
+    .game-title {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1.15;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    .game-subtitle {
+      font-size: 15px;
+      color: #666;
+    }
+
+    /* ── Clue Box ──────────────────────────────── */
+    .clue-box {
+      background: #f7f7f7;
+      border-left: 4px solid #d42b2b;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+    .clue-label {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #d42b2b;
+      margin-bottom: 6px;
+    }
+    .clue-text {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    .clue-source {
+      font-size: 13px;
+      color: #888;
+      font-style: italic;
+    }
+
+    /* ── Word Display ──────────────────────────── */
+    .word-display {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .letter-slot {
+      width: 44px;
+      height: 52px;
+      border-bottom: 3px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      transition: border-color .3s, transform .3s;
+    }
+    .letter-slot.revealed {
+      border-color: #2a9d4e;
+      animation: letterPop .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .letter-slot.lost-reveal {
+      border-color: #d42b2b;
+      color: #d42b2b;
+    }
+    @keyframes letterPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── Wrong Letters ─────────────────────────── */
+    .wrong-section {
+      text-align: center;
+      margin-bottom: 24px;
+      min-height: 36px;
+    }
+    .wrong-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #999;
+      margin-bottom: 6px;
+    }
+    .wrong-letters {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .wrong-letter {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: #f0e0e0;
+      color: #c53030;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: wrongPop .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes wrongPop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── Keyboard ──────────────────────────────── */
+    .keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    .kb-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+    .kb-key {
+      width: 38px;
+      height: 46px;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .kb-backspace {
+      width: 52px;
+      background: #eee;
+    }
+    .kb-backspace svg { width: 20px; height: 20px; }
+    .kb-key:hover:not(:disabled) {
+      background: #f0f0f0;
+      border-color: #aaa;
+    }
+    .kb-key:active:not(:disabled) {
+      transform: scale(.93);
+    }
+    .kb-key:disabled {
+      cursor: default;
+    }
+    .kb-key.correct {
+      background: #d4edda;
+      border-color: #2a9d4e;
+      color: #1a6b30;
+    }
+    .kb-key.wrong {
+      background: #e8e8e8;
+      border-color: #ccc;
+      color: #aaa;
+    }
+
+    /* ── Retry Button ──────────────────────────── */
+    .retry-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .btn-retry {
+      border: 1.5px solid #d42b2b;
+      background: #fff;
+      color: #d42b2b;
+      border-radius: 28px;
+      padding: 11px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .btn-retry:hover {
+      background: #d42b2b;
+      color: #fff;
+    }
+
+    /* ── Guillotine SVG ────────────────────────── */
+    .guillotine-svg {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+    }
+
+    /* ── Guess Counter ─────────────────────────── */
+    .guess-counter {
+      margin-top: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #666;
+      text-align: center;
+    }
+    .guess-counter .count {
+      color: #d42b2b;
+      font-size: 20px;
+    }
+
+    /* ── Toast ─────────────────────────────────── */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      z-index: 50;
+    }
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── End Modal ─────────────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(.92);
+      background: #fff;
+      border-radius: 16px;
+      max-width: 440px;
+      width: calc(100% - 40px);
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 301;
+      padding: 36px 28px 28px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-close {
+      position: absolute; top: 14px; right: 14px;
+      background: none; border: none; cursor: pointer;
+      padding: 4px; color: #888;
+    }
+    .modal-close:hover { color: #1a1a1a; }
+    .modal-close svg { width: 24px; height: 24px; }
+
+    .modal-icon {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .modal-icon img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+    .modal h2 {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .modal-message {
+      font-size: 15px;
+      color: #666;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .modal-word-reveal {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .modal-word {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: #1a1a1a;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .modal-definition {
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .modal-article {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .modal-article-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #d42b2b;
+      margin-bottom: 6px;
+    }
+    .modal-article-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.4;
+    }
+
+    .share-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .btn-share {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 28px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-share:hover { background: #333; }
+    .btn-new-game {
+      border: 1.5px solid #1a1a1a;
+      background: #fff;
+      color: #1a1a1a;
+      border-radius: 28px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-new-game:hover { background: #f5f5f5; }
+
+    .share-copied {
+      text-align: center;
+      font-size: 13px;
+      color: #2a9d4e;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity .3s;
+      height: 20px;
+    }
+    .share-copied.visible { opacity: 1; }
+
+    /* ── iPad (portrait) ─────────────────────── */
+    @media (max-width: 1024px) {
+      .guillotine-layout {
+        max-width: 800px;
+        padding: 28px 20px 50px;
+        gap: 32px;
+      }
+    }
+
+    /* ── iPad mini / small tablets ────────────── */
+    @media (max-width: 768px) {
+      .guillotine-layout {
+        flex-direction: column-reverse;
+        padding: 20px 16px 40px;
+        gap: 24px;
+      }
+      .visual-panel {
+        position: static;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        padding-top: 0;
+      }
+      .guillotine-svg { max-width: 220px; }
+      .guess-counter { margin-top: 0; }
+      .game-title { font-size: 28px; }
+      .letter-slot { width: 40px; height: 48px; font-size: 28px; }
+      .kb-row { flex-wrap: wrap; }
+      .kb-key { width: 38px; height: 46px; font-size: 18px; }
+    }
+
+    /* ── iPhone (all sizes) ───────────────────── */
+    @media (max-width: 600px) {
+      header { padding: 10px 14px; }
+      .header-cta { display: none; }
+      .btn-cta { padding: 8px 16px; font-size: 13px; }
+      .guillotine-layout { padding: 16px 14px 32px; gap: 20px; }
+      .guillotine-svg { max-width: 130px; }
+      .game-title { font-size: 24px; }
+      .game-tag { font-size: 11px; }
+      .letter-slot { width: 36px; height: 44px; font-size: 26px; }
+      .kb-key { width: 30px; height: 40px; font-size: 13px; }
+      .clue-box { padding: 16px; }
+      .clue-text { font-size: 17px; }
+      .modal { width: 92vw; min-width: 0; padding: 28px 18px 24px; }
+      .modal h2 { font-size: 22px; }
+      .modal-word { font-size: 28px; letter-spacing: 2px; }
+    }
+
+    /* ── iPhone SE / small phones ─────────────── */
+    @media (max-width: 375px) {
+      .guillotine-layout { padding: 12px 10px 24px; }
+      .guillotine-svg { max-width: 100px; }
+      .game-title { font-size: 22px; }
+      .kb-key { width: 26px; height: 36px; font-size: 12px; border-radius: 6px; }
+      .kb-row { gap: 3px; }
+      .letter-slot { width: 30px; height: 38px; font-size: 22px; }
+      .word-display { gap: 5px; }
+      .clue-text { font-size: 15px; }
+      .modal { padding: 24px 14px 20px; }
+      .modal-word { font-size: 24px; }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <a href="index.html" class="btn-back" aria-label="Tilbake til forsiden">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Spill
+    </a>
+  </div>
+  <div class="header-center">
+    <a href="index.html" class="logo" aria-label="Klassekampen">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 39">
+        <path d="M183.903 37.9992H189.193V20.1763L193.992 38.0029H200.75V1.12608H195.46V18.8528L190.661 1.12608H183.903V37.9992ZM182.044 37.9992V31.2412H176.262V22.6237H181.06V15.13H176.262V7.88406H182.04V1.12608H169.992V37.9992H182.044ZM159.123 8.37206H160.002C161.326 8.37206 162.354 9.83974 162.354 14.4461C162.354 19.0007 161.326 20.5202 160.002 20.5202H159.123V8.37206ZM152.853 37.9992H159.123V27.2264H159.807C164.753 27.2264 168.62 23.4555 168.62 14.4461C168.62 5.09288 164.753 1.12608 159.807 1.12608H152.853V37.9992ZM127.584 37.9992H133.362V16.1097L136.889 37.9992H140.904L144.431 16.1097V37.9992H150.701V1.12608H141.496L139.144 19.3926L136.793 1.12608H127.588V37.9992H127.584ZM116.615 26.0027L117.939 9.79168L119.262 26.0027H116.615ZM109.758 37.9992H115.636L116.028 33.3485H119.846L120.238 37.9992H126.213L122.59 1.12238H113.384L109.758 37.9992ZM92.6186 37.9992H98.8886V21.4961L102.415 37.9992H109.369L104.715 18.265L109.366 1.12608H102.316L98.8886 16.6975V1.12608H92.6186V37.9992ZM78.7108 37.9992H90.7591V31.2412H84.9808V22.6237H89.7794V15.13H84.9808V7.88406H90.7591V1.12608H78.7108V37.9992ZM62.3038 28.6978C62.7918 36.3874 66.0266 38.5427 70.1894 38.5427C75.036 38.5427 77.8272 35.1156 77.8272 29.0416C77.8272 20.3723 69.0618 14.3019 69.0618 9.01162C69.0618 7.78794 69.7457 7.34801 70.3335 7.34801C71.4093 7.34801 71.853 8.76763 71.853 12.0505L77.6313 10.4349C77.1433 2.74533 74.0563 0.590027 70.0415 0.590027C65.2909 0.590027 62.4998 4.06514 62.4998 9.1595C62.4998 18.4166 71.365 24.243 71.365 30.1174C71.365 31.293 70.6811 31.781 70.0932 31.781C68.8696 31.781 68.3779 30.3614 68.3779 27.0785L62.3038 28.6978ZM46.2924 28.6978C46.7804 36.3874 50.0152 38.5427 54.178 38.5427C59.0246 38.5427 61.8158 35.1156 61.8158 29.0416C61.8158 20.3723 53.0504 14.3019 53.0504 9.01162C53.0504 7.78794 53.7343 7.34801 54.3222 7.34801C55.398 7.34801 55.8416 8.76763 55.8416 12.0505L61.6199 10.4349C61.1319 2.74533 58.045 0.590027 54.0301 0.590027C49.2795 0.590027 46.4884 4.06514 46.4884 9.1595C46.4884 18.4166 55.3536 24.243 55.3536 30.1174C55.3536 31.293 54.6697 31.781 54.0819 31.781C52.8582 31.781 52.3665 30.3614 52.3665 27.0785L46.2924 28.6978ZM36.6915 26.0027L38.015 9.79168L39.3385 26.0027H36.6915ZM29.8374 37.9992H35.7155L36.1074 33.3485H39.9263L40.3182 37.9992H46.2924L42.6694 1.12238H33.4641L29.8374 37.9992ZM18.4768 37.9992H28.9575V30.5092H25.0388V1.12608H18.4768V37.9992ZM0.75 1.12608V38.0029H7.01629V21.4961L10.5432 37.9992H17.4971L12.8426 18.265L17.4971 1.12608H10.4433L7.01629 16.6975V1.12608H0.75Z"/>
+      </svg>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="btn-cta header-cta">Prøv for 1 krone</button>
+  </div>
+</header>
+
+<!-- ═══ TOAST ═════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ GAME LAYOUT ══════════════════════════════ -->
+<main class="guillotine-layout">
+
+  <!-- LEFT: Game Panel -->
+  <div class="game-panel">
+    <div class="game-header">
+      <span class="game-tag">Ukens spill</span>
+      <h1 class="game-title">Giljotinen</h1>
+      <p class="game-subtitle" id="gameSubtitle"></p>
+    </div>
+
+    <div class="clue-box">
+      <div class="clue-label">Ledetråd</div>
+      <p class="clue-text" id="clueText"></p>
+      <p class="clue-source" id="clueSource"></p>
+    </div>
+
+    <div class="word-display" id="wordDisplay"></div>
+
+    <div class="wrong-section" id="wrongSection">
+      <div class="wrong-label hidden" id="wrongLabel">Feil bokstaver</div>
+      <div class="wrong-letters" id="wrongLetters"></div>
+    </div>
+
+    <div class="keyboard" id="keyboard"></div>
+
+    <div class="retry-wrap hidden" id="retryWrap">
+      <button class="btn-retry" id="btnRetry" type="button">Prøv igjen</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Guillotine Visual -->
+  <div class="visual-panel">
+    <svg id="guillotineSvg" class="guillotine-svg" viewBox="80 110 440 620" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>.st0{fill:#e21f26}.st1{fill:none;stroke:#000;stroke-miterlimit:10;stroke-width:8px}</style>
+      </defs>
+
+      <!-- Frame: top horizontal beam -->
+      <rect x="291.69" y="-58.06" width="10.94" height="397.76" transform="translate(437.98 -156.34) rotate(90)"/>
+      <!-- Frame: left post -->
+      <rect x="119.67" y="135.35" width="23.51" height="496.66"/>
+      <!-- Frame: right post -->
+      <rect x="451.13" y="135.35" width="23.51" height="496.66"/>
+
+      <!-- Rope (extends from beam centre to blade — synced via JS) -->
+      <line id="bladeTrack" x1="297.4" y1="146" x2="297.4" y2="193" stroke="#e21f26" stroke-width="8" stroke-linecap="round"/>
+
+      <!-- Blade assembly (translated down via JS) -->
+      <g id="bladeGroup">
+        <rect class="st0" x="293.47" y="151.43" width="7.87" height="42.4"/>
+        <rect x="172.18" y="197.89" width="249.44" height="10.11" rx="3.99" ry="3.99"/>
+        <polygon class="st0" points="379.48 293.45 215.43 267.45 215.43 208.01 379.48 208.01 379.48 293.45"/>
+      </g>
+
+      <!-- Head (single circle — hidden until game over, falls from lunette into basket) -->
+      <circle id="headCircle" cx="296.6" cy="565.28" r="15.21" opacity="0"/>
+
+      <!-- Stock / lunette (drawn on top of head so it occludes during fall) -->
+      <rect x="143.18" y="527.3" width="307.95" height="7.12"/>
+      <path d="M131.42,534.42v61.7h331.46v-61.7H131.42ZM296.59,591.43c-14.38,0-26.03-11.65-26.03-26.03s11.65-26.03,26.03-26.03,26.03,11.65,26.03,26.03-11.66,26.03-26.03,26.03Z"/>
+      <circle id="lunetteHead" cx="296.6" cy="565.28" r="15.21"/>
+      <rect x="143.18" y="596.12" width="307.95" height="7.12"/>
+
+      <!-- Basket (white fill covers the head so it appears inside) -->
+      <path fill="#fff" d="M328.56,651.89c.06.2.09.4.09.6,0,.49-.17.96-.48,1.43l-.72,3.77-4.73,24.6h-.01c-.98,5.25-3.54,9.94-7.16,13.56-4.71,4.72-11.22,7.63-18.41,7.63s-13.7-2.91-18.41-7.63c-3.62-3.62-6.18-8.31-7.16-13.56h-.01l-4.73-24.6-.72-3.77c-.23-.35-.39-.71-.45-1.07,2.3,3.97,15.38,7.02,31.16,7.02,17.4,0,31.51-3.71,31.51-8.27,0-.1-.01-.21-.02-.31.03.04.05.09.07.13h.27l-.09.47Z"/>
+      <ellipse class="st1" cx="296.6" cy="652.42" rx="31.51" ry="8.27"/>
+      <path class="st1" d="M265.09,651.35l1.2,6.27,4.73,24.6h.01c.98,5.25,3.54,9.94,7.16,13.56,4.71,4.72,11.22,7.63,18.41,7.63s13.7-2.91,18.41-7.63c3.62-3.62,6.18-8.31,7.16-13.56h.01l4.73-24.6,1.2-6.27"/>
+    </svg>
+
+    <div class="guess-counter" id="guessCounter"></div>
+  </div>
+
+</main>
+
+<!-- ═══ END MODAL ════════════════════════════════ -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="modal" id="endModal" role="dialog" aria-modal="true" aria-label="Resultat">
+  <button class="modal-close" id="modalClose" aria-label="Lukk">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+  <div id="modalContent"></div>
+</div>
+
+<!-- ═══ SCRIPT ═══════════════════════════════════ -->
+<script>
+(function () {
+
+// ── Word Data ──────────────────────────────────────
+const WORDS = [
+  {
+    word: "HEGEMONI",
+    hint: "Dominans eller overherredømme, særlig om kulturell eller politisk makt.",
+    source: "Analyse: USAs hegemoni i en multipolar verden",
+    article: "#"
+  },
+  {
+    word: "KONSESJON",
+    hint: "Offentlig tillatelse til å drive en bestemt virksomhet eller utnytte en ressurs.",
+    source: "Nye konsesjoner for havvind: hvem får tilslaget?",
+    article: "#"
+  },
+  {
+    word: "PARADIGME",
+    hint: "Grunnleggende tenkemåte eller vitenskapelig referanseramme.",
+    source: "Et paradigmeskifte i norsk klimapolitikk?",
+    article: "#"
+  },
+  {
+    word: "DIKOTOMI",
+    hint: "Todeling eller skarpt motsetningsforhold mellom to begreper.",
+    source: "Dikotomien mellom by og land i norsk politikk",
+    article: "#"
+  },
+  {
+    word: "RETORIKK",
+    hint: "Talekunst, argumentasjonsteknikk eller overtalelseskunst.",
+    source: "Krigsretorikken har nådd den europeiske debatten",
+    article: "#"
+  },
+  {
+    word: "OLIGARKI",
+    hint: "Styreform der makten er konsentrert hos et fåtall mennesker.",
+    source: "Oligarkene: hvem styrer egentlig Europas økonomi?",
+    article: "#"
+  },
+  {
+    word: "EMBARGO",
+    hint: "Handelsblokade eller forbud mot handel med en bestemt stat.",
+    source: "EU vurderer utvidet embargo mot Russland",
+    article: "#"
+  },
+  {
+    word: "NARRATIV",
+    hint: "En fortellingsramme eller overordnet virkelighetsforståelse.",
+    source: "Kampen om det politiske narrativet før valget",
+    article: "#"
+  },
+  {
+    word: "SANKSJON",
+    hint: "Straffetiltak mot en stat, eller formell godkjenning.",
+    source: "Nye sanksjoner: virker de etter hensikten?",
+    article: "#"
+  },
+  {
+    word: "ANNEKTERING",
+    hint: "Ensidig innlemmelse av et landområde under en stats suverenitet.",
+    source: "Folkerettseksperter: annekteringen bryter internasjonal lov",
+    article: "#"
+  }
+];
+
+const MAX_WRONG = 6;
+const LS_KEY = "kk_giljotinen_";
+
+// ── Week Calculation ───────────────────────────────
+function getISOWeek(d) {
+  const date = new Date(d.getTime());
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+  const week1 = new Date(date.getFullYear(), 0, 4);
+  return 1 + Math.round(((date - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+}
+
+function getWordForWeek() {
+  const now = new Date();
+  const week = getISOWeek(now);
+  const year = now.getFullYear();
+  const idx = ((year * 53) + week) % WORDS.length;
+  return { ...WORDS[idx], weekNum: week, year };
+}
+
+// ── State ──────────────────────────────────────────
+let currentWord = null;
+let guessedLetters = new Set();
+let wrongLetters = [];
+let correctLetters = new Set();
+let gameStatus = "playing"; // playing | won | lost
+let startedAt = null;
+
+// ── DOM Refs ───────────────────────────────────────
+const $subtitle    = document.getElementById("gameSubtitle");
+const $clueText    = document.getElementById("clueText");
+const $clueSource  = document.getElementById("clueSource");
+const $wordDisplay = document.getElementById("wordDisplay");
+const $wrongLabel  = document.getElementById("wrongLabel");
+const $wrongLetters= document.getElementById("wrongLetters");
+const $keyboard    = document.getElementById("keyboard");
+const $guessCounter= document.getElementById("guessCounter");
+const $toast       = document.getElementById("toast");
+const $modalBg     = document.getElementById("modalBackdrop");
+const $modal       = document.getElementById("endModal");
+const $modalClose  = document.getElementById("modalClose");
+const $modalContent= document.getElementById("modalContent");
+const $retryWrap   = document.getElementById("retryWrap");
+const $btnRetry    = document.getElementById("btnRetry");
+const $bladeGroup  = document.getElementById("bladeGroup");
+const $bladeTrack  = document.getElementById("bladeTrack");
+const $headCircle  = document.getElementById("headCircle");
+const $lunetteHead = document.getElementById("lunetteHead");
+
+// ── Guillotine Animation ───────────────────────────
+// All animation is driven by requestAnimationFrame so
+// the rope, blade, and head stay in perfect sync.
+
+const BLADE_TRAVEL = 300;      // SVG units blade drops
+const TRACK_REST_Y2 = 193;    // rope end-y when blade is at top (bottom of rod)
+const HEAD_LUNETTE_Y = 565.28; // cy at the lunette hole (from guillotine.svg)
+const HEAD_BASKET_Y  = 666.56; // cy resting in the basket, barely sticking out (from guillotinelost.svg)
+
+let currentBladeOffset = 0;  // current translateY of blade group
+let bladeAnimId = null;
+
+function easeOutBounce(t) {
+  if (t < 1 / 2.75)       return 7.5625 * t * t;
+  else if (t < 2 / 2.75)  { t -= 1.5 / 2.75;   return 7.5625 * t * t + 0.75; }
+  else if (t < 2.5 / 2.75){ t -= 2.25 / 2.75;  return 7.5625 * t * t + 0.9375; }
+  else                     { t -= 2.625 / 2.75; return 7.5625 * t * t + 0.984375; }
+}
+
+function easeInQuad(t) { return t * t; }
+
+function applyBladePosition(offset) {
+  $bladeGroup.setAttribute("transform", "translate(0," + offset + ")");
+  $bladeTrack.setAttribute("y2", TRACK_REST_Y2 + offset);
+}
+
+function animateBladeTo(targetOffset, onDone) {
+  if (bladeAnimId) { cancelAnimationFrame(bladeAnimId); bladeAnimId = null; }
+
+  var startOffset = currentBladeOffset;
+  var delta = targetOffset - startOffset;
+  if (Math.abs(delta) < 0.5) {
+    currentBladeOffset = targetOffset;
+    applyBladePosition(targetOffset);
+    if (onDone) onDone();
+    return;
+  }
+
+  var duration = 420 + Math.abs(delta) * 0.8;
+  var startTime = null;
+
+  function tick(now) {
+    if (!startTime) startTime = now;
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+
+    var eased = easeOutBounce(easeInQuad(t));
+    var offset = startOffset + delta * eased;
+
+    currentBladeOffset = offset;
+    applyBladePosition(offset);
+
+    if (t < 1) {
+      bladeAnimId = requestAnimationFrame(tick);
+    } else {
+      currentBladeOffset = targetOffset;
+      applyBladePosition(targetOffset);
+      bladeAnimId = null;
+      if (onDone) onDone();
+    }
+  }
+
+  bladeAnimId = requestAnimationFrame(tick);
+}
+
+function animateHeadFall() {
+  var startY  = HEAD_LUNETTE_Y;
+  var endY    = HEAD_BASKET_Y;
+  var duration = 350;
+  var startTime = null;
+
+  $lunetteHead.setAttribute("opacity", "0");
+  $headCircle.setAttribute("cy", startY);
+  $headCircle.setAttribute("opacity", "1");
+
+  function tick(now) {
+    if (!startTime) startTime = now;
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    var eased = easeOutBounce(easeInQuad(t));
+    var y = startY + (endY - startY) * eased;
+    $headCircle.setAttribute("cy", y);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+function bladeOffsetForStep(wrongCount) {
+  var clamped = Math.min(wrongCount, MAX_WRONG);
+  if (clamped === 0) return 0;
+  // Steps 1–(MAX-1) share the first half, the final step covers the second half
+  var normalSteps = MAX_WRONG - 1;
+  var halfTravel = BLADE_TRAVEL / 2;
+  if (clamped < MAX_WRONG) {
+    return (clamped / normalSteps) * halfTravel;
+  }
+  return BLADE_TRAVEL;
+}
+
+function updateGuillotine(wrongCount) {
+  var targetOffset = bladeOffsetForStep(wrongCount);
+
+  animateBladeTo(targetOffset, function () {
+    if (wrongCount >= MAX_WRONG) {
+      setTimeout(animateHeadFall, 100);
+    }
+  });
+}
+
+function setGuillotineInstant(wrongCount) {
+  var offset = bladeOffsetForStep(wrongCount);
+  currentBladeOffset = offset;
+  applyBladePosition(offset);
+}
+
+function resetGuillotine() {
+  if (bladeAnimId) { cancelAnimationFrame(bladeAnimId); bladeAnimId = null; }
+  currentBladeOffset = 0;
+  applyBladePosition(0);
+  $headCircle.setAttribute("opacity", "0");
+  $headCircle.setAttribute("cy", HEAD_LUNETTE_Y);
+  $lunetteHead.setAttribute("opacity", "1");
+}
+
+// ── Keyboard ───────────────────────────────────────
+const KB_ROWS_3 = [
+  ["Q","W","E","R","T","Y","U","I","O","P","Å"],
+  ["A","S","D","F","G","H","J","K","L","Ø","Æ"],
+  ["Z","X","C","V","B","N","M"]
+];
+const KB_ROWS_2 = [
+  ["Q","W","E","R","T","Y","U","I","O","P","Å","Ø","Æ"],
+  ["A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M"]
+];
+function getKBRows() {
+  return window.innerWidth >= 768 && window.innerWidth <= 1024 ? KB_ROWS_2 : KB_ROWS_3;
+}
+var KB_ROWS = getKBRows();
+
+var guessHistory = [];
+
+function renderKeyboard() {
+  KB_ROWS = getKBRows();
+  $keyboard.innerHTML = "";
+  KB_ROWS.forEach(function (row, rowIdx) {
+    const rowEl = document.createElement("div");
+    rowEl.className = "kb-row";
+    row.forEach(function (letter) {
+      const btn = document.createElement("button");
+      btn.className = "kb-key";
+      btn.textContent = letter;
+      btn.dataset.letter = letter;
+      btn.type = "button";
+
+      if (guessedLetters.has(letter)) {
+        btn.disabled = true;
+        if (correctLetters.has(letter)) {
+          btn.classList.add("correct");
+        } else {
+          btn.classList.add("wrong");
+        }
+      }
+
+      if (gameStatus !== "playing") {
+        btn.disabled = true;
+      }
+
+      btn.addEventListener("click", function () {
+        guessLetter(letter);
+      });
+      rowEl.appendChild(btn);
+    });
+
+    if (rowIdx === KB_ROWS.length - 1) {
+      const bksp = document.createElement("button");
+      bksp.className = "kb-key kb-backspace";
+      bksp.type = "button";
+      bksp.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>';
+      bksp.disabled = guessHistory.length === 0 || gameStatus !== "playing";
+      bksp.addEventListener("click", undoLastGuess);
+      rowEl.appendChild(bksp);
+    }
+
+    $keyboard.appendChild(rowEl);
+  });
+}
+
+function undoLastGuess() {
+  if (gameStatus !== "playing" || guessHistory.length === 0) return;
+  var last = guessHistory.pop();
+  guessedLetters.delete(last);
+  if (correctLetters.has(last)) {
+    correctLetters.delete(last);
+  } else {
+    wrongLetters.pop();
+    var wrongCount = wrongLetters.length;
+    var targetOffset = bladeOffsetForStep(wrongCount);
+    animateBladeTo(targetOffset);
+  }
+  renderKeyboard();
+  renderWordDisplay();
+  renderWrongLetters();
+  renderGuessCounter();
+  saveState();
+}
+
+// ── Word Display ───────────────────────────────────
+function renderWordDisplay() {
+  $wordDisplay.innerHTML = "";
+  var letters = currentWord.word.split("");
+  letters.forEach(function (ch, i) {
+    var slot = document.createElement("div");
+    slot.className = "letter-slot";
+    if (correctLetters.has(ch)) {
+      slot.textContent = ch;
+      slot.classList.add("revealed");
+    } else if (gameStatus === "lost") {
+      slot.textContent = ch;
+      if (!correctLetters.has(ch)) {
+        slot.classList.add("lost-reveal");
+      }
+    }
+    $wordDisplay.appendChild(slot);
+  });
+}
+
+// ── Wrong Letters ──────────────────────────────────
+function renderWrongLetters() {
+  if (wrongLetters.length > 0) {
+    $wrongLabel.classList.remove("hidden");
+  } else {
+    $wrongLabel.classList.add("hidden");
+  }
+  $wrongLetters.innerHTML = "";
+  wrongLetters.forEach(function (letter) {
+    var el = document.createElement("div");
+    el.className = "wrong-letter";
+    el.textContent = letter;
+    $wrongLetters.appendChild(el);
+  });
+}
+
+// ── Guess Counter ──────────────────────────────────
+function renderGuessCounter() {
+  var remaining = MAX_WRONG - wrongLetters.length;
+  if (gameStatus === "playing") {
+    $guessCounter.innerHTML = '<span class="count">' + remaining + '</span> forsøk igjen';
+  } else if (gameStatus === "won") {
+    $guessCounter.innerHTML = 'Løst!';
+    $guessCounter.style.color = "#2a9d4e";
+  } else {
+    $guessCounter.innerHTML = 'Tapt';
+    $guessCounter.style.color = "#d42b2b";
+  }
+}
+
+// ── Toast ──────────────────────────────────────────
+var toastTimeout;
+function showToast(msg, duration) {
+  clearTimeout(toastTimeout);
+  $toast.textContent = msg;
+  $toast.classList.add("visible");
+  toastTimeout = setTimeout(function () {
+    $toast.classList.remove("visible");
+  }, duration || 1500);
+}
+
+// ── Core Game Logic ────────────────────────────────
+function guessLetter(letter) {
+  if (gameStatus !== "playing") return;
+  if (guessedLetters.has(letter)) return;
+
+  if (!startedAt) startedAt = new Date().toISOString();
+
+  guessedLetters.add(letter);
+  guessHistory.push(letter);
+
+  var wordLetters = new Set(currentWord.word.split(""));
+
+  if (wordLetters.has(letter)) {
+    correctLetters.add(letter);
+    renderWordDisplay();
+    renderKeyboard();
+    checkWin();
+  } else {
+    wrongLetters.push(letter);
+    renderWrongLetters();
+    renderKeyboard();
+    updateGuillotine(wrongLetters.length);
+    renderGuessCounter();
+    checkLoss();
+  }
+
+  saveState();
+}
+
+function checkWin() {
+  var wordLetters = new Set(currentWord.word.split(""));
+  var allFound = true;
+  wordLetters.forEach(function (ch) {
+    if (!correctLetters.has(ch)) allFound = false;
+  });
+
+  if (allFound) {
+    gameStatus = "won";
+    renderGuessCounter();
+    renderKeyboard();
+    $retryWrap.classList.remove("hidden");
+    saveState();
+    setTimeout(function () {
+      showEndModal();
+    }, 800);
+  } else {
+    renderGuessCounter();
+  }
+}
+
+function checkLoss() {
+  if (wrongLetters.length >= MAX_WRONG) {
+    gameStatus = "lost";
+    renderGuessCounter();
+    renderKeyboard();
+    $retryWrap.classList.remove("hidden");
+    setTimeout(function () {
+      renderWordDisplay();
+    }, 900);
+    saveState();
+    setTimeout(function () {
+      showEndModal();
+    }, 1800);
+  }
+}
+
+// ── Keyboard Input ─────────────────────────────────
+window.addEventListener("resize", function () {
+  var newRows = getKBRows();
+  if (newRows.length !== KB_ROWS.length) renderKeyboard();
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  var key = e.key.toUpperCase();
+  var allLetters = KB_ROWS.flat();
+  if (allLetters.includes(key)) {
+    e.preventDefault();
+    guessLetter(key);
+  }
+  if (e.key === "Backspace") { e.preventDefault(); undoLastGuess(); }
+  if (e.key === "Escape") closeModal();
+});
+
+// ── Persistence ────────────────────────────────────
+function stateKey() {
+  return LS_KEY + currentWord.year + "_" + currentWord.weekNum;
+}
+
+function saveState() {
+  try {
+    var s = {
+      word: currentWord.word,
+      guessedLetters: Array.from(guessedLetters),
+      wrongLetters: wrongLetters,
+      correctLetters: Array.from(correctLetters),
+      gameStatus: gameStatus,
+      startedAt: startedAt
+    };
+    localStorage.setItem(stateKey(), JSON.stringify(s));
+  } catch (e) {}
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(stateKey());
+    if (!raw) return false;
+    var s = JSON.parse(raw);
+    if (s.word !== currentWord.word) return false;
+    guessedLetters = new Set(s.guessedLetters);
+    wrongLetters = s.wrongLetters || [];
+    correctLetters = new Set(s.correctLetters);
+    gameStatus = s.gameStatus || "playing";
+    startedAt = s.startedAt || null;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// ── End Modal ──────────────────────────────────────
+function showEndModal() {
+  var won = gameStatus === "won";
+  var wrongCount = wrongLetters.length;
+
+  var html = '<div class="modal-icon"><img src="giljotinen.svg" alt="Giljotinen" width="72" height="72"></div>' +
+    '<h2>' + (won ? "Gratulerer!" : "Giljotinen falt!") + '</h2>' +
+    '<p class="modal-message">' + (won
+      ? "Du gjettet ukens ord med " + wrongCount + " feil av " + MAX_WRONG + " mulige."
+      : "Bladet nådde bunnen. Bedre lykke neste uke!"
+    ) + '</p>' +
+    '<div class="modal-word-reveal">' +
+      '<div class="modal-word">' + currentWord.word + '</div>' +
+      '<div class="modal-definition">' + currentWord.hint + '</div>' +
+    '</div>' +
+    '<div class="modal-article">' +
+      '<div class="modal-article-label">Fra ukens avis</div>' +
+      '<div class="modal-article-title">' + currentWord.source + '</div>' +
+    '</div>' +
+    '<div class="share-row">' +
+      '<button class="btn-share" id="btnShare">Del resultatet</button>' +
+      '<button class="btn-new-game" id="btnModalRetry">Prøv igjen</button>' +
+    '</div>' +
+    '<div class="share-copied" id="shareCopied">Kopiert til utklippstavlen!</div>';
+
+  $modalContent.innerHTML = html;
+  $modal.classList.add("open");
+  $modalBg.classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  document.getElementById("btnShare").addEventListener("click", shareResult);
+  document.getElementById("btnModalRetry").addEventListener("click", resetGame);
+}
+
+function closeModal() {
+  $modal.classList.remove("open");
+  $modalBg.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function shareResult() {
+  var won = gameStatus === "won";
+  var wrongCount = wrongLetters.length;
+  var blocks = "";
+  var wordLetters = currentWord.word.split("");
+  var allGuessed = guessedLetters;
+
+  var guessOrder = wrongLetters.slice();
+  var text = "Giljotinen \u2013 Klassekampen\n" +
+    "Uke " + currentWord.weekNum + ", " + currentWord.year + "\n\n";
+
+  for (var i = 0; i < MAX_WRONG; i++) {
+    text += i < wrongCount ? "\u{1F7E5}" : "\u2B1C";
+  }
+  text += "\n" + (won ? "\u2705 Løst!" : "\u274C Ikke løst");
+  text += " (" + wrongCount + "/" + MAX_WRONG + " feil)";
+
+  navigator.clipboard.writeText(text).then(function () {
+    var el = document.getElementById("shareCopied");
+    el.classList.add("visible");
+    setTimeout(function () { el.classList.remove("visible"); }, 2000);
+  }).catch(function () {
+    showToast("Kunne ikke kopiere", 2000);
+  });
+}
+
+$modalClose.addEventListener("click", closeModal);
+$modalBg.addEventListener("click", closeModal);
+
+// ── Retry ──────────────────────────────────────────
+function resetGame() {
+  closeModal();
+  guessedLetters = new Set();
+  wrongLetters = [];
+  correctLetters = new Set();
+  guessHistory = [];
+  gameStatus = "playing";
+  startedAt = null;
+
+  resetGuillotine();
+  renderWordDisplay();
+  renderWrongLetters();
+  renderKeyboard();
+  renderGuessCounter();
+  $retryWrap.classList.add("hidden");
+  $guessCounter.style.color = "";
+
+  try { localStorage.removeItem(stateKey()); } catch (e) {}
+}
+
+$btnRetry.addEventListener("click", resetGame);
+
+// ── Initialize ─────────────────────────────────────
+function init() {
+  currentWord = getWordForWeek();
+
+  $subtitle.textContent = "Uke " + currentWord.weekNum + ", " + currentWord.year + " \u2013 Gjett ukens ord fra avisa";
+  $clueText.textContent = currentWord.hint;
+  $clueSource.textContent = "\u00AB" + currentWord.source + "\u00BB";
+
+  var restored = loadState();
+
+  if (restored) {
+    setGuillotineInstant(wrongLetters.length);
+    if (gameStatus === "lost") {
+      $lunetteHead.setAttribute("opacity", "0");
+      $headCircle.setAttribute("opacity", "1");
+      $headCircle.setAttribute("cy", HEAD_BASKET_Y);
+    }
+  } else {
+    resetGuillotine();
+  }
+
+  renderWordDisplay();
+  renderWrongLetters();
+  renderKeyboard();
+  renderGuessCounter();
+
+  if (gameStatus !== "playing") {
+    $retryWrap.classList.remove("hidden");
+    setTimeout(function () { showEndModal(); }, 500);
+  }
+}
+
+init();
+
+})();
+</script>
+
+</body>
+</html>

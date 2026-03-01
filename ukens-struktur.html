@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ukens Struktur – Klassekampen</title>
+  <link rel="stylesheet" href="trade-gothic-lt-std-webfont/style.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1a1a1a;
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── Header (consistent with main site) ─────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .header-left { display: flex; align-items: center; }
+    .header-center { position: absolute; left: 50%; transform: translateX(-50%); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .btn-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; font-size: 15px;
+      color: #d42b2b; cursor: pointer; text-decoration: none;
+      font-weight: 500; transition: opacity .2s;
+    }
+    .btn-back:hover { opacity: .7; }
+    .btn-back svg { width: 18px; height: 18px; }
+    .logo {
+      display: flex; align-items: center;
+      text-decoration: none;
+    }
+    .logo svg { height: 38px; width: auto; fill: #d42b2b; }
+    @media (max-width: 600px) { .logo svg { height: 26px; } }
+    .btn-cta {
+      background: #d42b2b; color: #fff; border: none;
+      border-radius: 28px; padding: 10px 22px; font-size: 14px;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: background .2s;
+    }
+    .btn-cta:hover { background: #b82222; }
+
+    /* ── Game Container ─────────────────────────── */
+    .game-wrap {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .game-tag {
+      display: inline-block;
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #d42b2b;
+      margin-bottom: 8px;
+    }
+    .game-title {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.15;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 600px) { .game-title { font-size: 24px; } }
+    .game-subtitle {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    .game-instructions {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    /* ── Attempts indicator ─────────────────────── */
+    .attempts-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .attempts-label {
+      font-size: 13px;
+      color: #888;
+      margin-right: 4px;
+    }
+    .attempt-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #d42b2b;
+      transition: background .3s, transform .3s;
+    }
+    .attempt-dot.used {
+      background: #e0e0e0;
+      transform: scale(.8);
+    }
+
+    /* ── Feedback toast ─────────────────────────── */
+    .toast {
+      text-align: center;
+      min-height: 32px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity .3s, transform .3s;
+    }
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast.error { color: #c53030; }
+    .toast.success { color: #2a9d4e; }
+    .toast.hint { color: #3a7bc8; }
+
+    /* ── Solved category rows ──────────────────── */
+    .solved-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .solved-row {
+      border-radius: 10px;
+      padding: 16px 20px;
+      text-align: center;
+      animation: solvedReveal .5s cubic-bezier(.34,1.56,.64,1) forwards;
+      opacity: 0;
+      transform: scale(.95);
+    }
+    @keyframes solvedReveal {
+      to { opacity: 1; transform: scale(1); }
+    }
+    .solved-row-label {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 4px;
+    }
+    .solved-row-terms {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* ── Term grid ─────────────────────────────── */
+    .term-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .term-chip {
+      position: relative;
+      background: #f0f0f0;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 14px 6px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a1a;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s, border-color .15s, transform .15s, color .15s;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+    .term-chip:hover:not(.selected):not(.locked) {
+      background: #e4e4e4;
+    }
+    .term-chip:focus-visible {
+      outline: 3px solid #d42b2b;
+      outline-offset: 2px;
+    }
+    .term-chip.selected {
+      background: #1a1a1a;
+      color: #fff;
+      transform: scale(.97);
+    }
+    .term-chip.locked {
+      pointer-events: none;
+      opacity: .4;
+    }
+
+    /* Shake animation for incorrect guess */
+    .term-chip.shake {
+      animation: chipShake .5s ease;
+    }
+    @keyframes chipShake {
+      0%, 100% { transform: translateX(0); }
+      15% { transform: translateX(-6px); }
+      30% { transform: translateX(6px); }
+      45% { transform: translateX(-4px); }
+      60% { transform: translateX(4px); }
+      75% { transform: translateX(-2px); }
+      90% { transform: translateX(2px); }
+    }
+
+    /* Correct flash */
+    .term-chip.correct-flash {
+      animation: correctFlash .6s ease forwards;
+    }
+    @keyframes correctFlash {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.05); }
+      100% { transform: scale(.97); opacity: 0; }
+    }
+
+    /* ── Action buttons ────────────────────────── */
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-game {
+      border: 1.5px solid #1a1a1a;
+      background: #fff;
+      color: #1a1a1a;
+      border-radius: 28px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, opacity .15s, color .15s, border-color .15s;
+    }
+    .btn-game:hover { background: #f5f5f5; }
+    .btn-game:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+    .btn-game:disabled:hover { background: #fff; }
+    .btn-game.primary {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+    .btn-game.primary:hover { background: #333; }
+    .btn-game.primary:disabled { background: #1a1a1a; }
+    .btn-game.hint-btn {
+      border-color: #3a7bc8;
+      color: #3a7bc8;
+    }
+    .btn-game.hint-btn:hover { background: #eef4fb; }
+
+    /* ── End Modal Overlay ──────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(.92);
+      background: #fff;
+      border-radius: 16px;
+      max-width: 520px;
+      width: calc(100% - 40px);
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 301;
+      padding: 36px 28px 28px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-close {
+      position: absolute; top: 14px; right: 14px;
+      background: none; border: none; cursor: pointer;
+      padding: 4px; color: #888;
+    }
+    .modal-close:hover { color: #1a1a1a; }
+    .modal-close svg { width: 24px; height: 24px; }
+
+    .modal-status {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .modal-status-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    .modal-status h2 {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .modal-status p {
+      font-size: 15px;
+      color: #666;
+    }
+
+    /* Share block */
+    .share-block {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .share-grid {
+      font-size: 22px;
+      line-height: 1.6;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+    }
+    .btn-share {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 28px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-share:hover { background: #333; }
+    .share-copied {
+      font-size: 13px;
+      color: #2a9d4e;
+      margin-top: 6px;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .share-copied.visible { opacity: 1; }
+
+    /* Explainer accordion */
+    .explainers {
+      margin-bottom: 24px;
+    }
+    .explainers h3 {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .explainer-item {
+      border-top: 1px solid #eee;
+    }
+    .explainer-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 14px 0;
+      cursor: pointer;
+      text-align: left;
+      transition: opacity .2s;
+    }
+    .explainer-header:hover { opacity: .7; }
+    .explainer-dot {
+      width: 14px; height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .explainer-label {
+      font-weight: 700;
+      font-size: 15px;
+      flex: 1;
+    }
+    .explainer-toggle {
+      font-size: 18px;
+      color: #999;
+      transition: transform .25s;
+    }
+    .explainer-header.expanded .explainer-toggle {
+      transform: rotate(45deg);
+    }
+    .explainer-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease;
+    }
+    .explainer-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #444;
+      padding: 0 0 8px 24px;
+    }
+    .explainer-links {
+      padding: 4px 0 14px 24px;
+    }
+    .explainer-links a {
+      display: block;
+      font-size: 13px;
+      color: #d42b2b;
+      text-decoration: none;
+      padding: 3px 0;
+      transition: opacity .2s;
+    }
+    .explainer-links a:hover { opacity: .7; }
+
+    /* Subscriber panel */
+    .subscriber-panel {
+      background: linear-gradient(135deg, #fdf2f2, #fff5f5);
+      border: 1px solid #f5c6c6;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .subscriber-panel h4 {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+    .subscriber-panel ul {
+      list-style: none;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 14px;
+      line-height: 1.8;
+    }
+    .subscriber-panel li::before {
+      content: "✓ ";
+      color: #d42b2b;
+      font-weight: 700;
+    }
+
+    /* ── iPad ─────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .game-wrap { max-width: 600px; padding: 28px 20px 50px; }
+    }
+
+    /* ── iPad mini / small tablets ────────────── */
+    @media (max-width: 768px) {
+      header { padding: 12px 16px; }
+      .game-wrap { padding: 24px 16px 40px; }
+      .game-title { font-size: 28px; }
+      .term-chip { font-size: 14px; min-height: 56px; }
+    }
+
+    /* ── iPhone (all sizes) ───────────────────── */
+    @media (max-width: 600px) {
+      header { padding: 10px 14px; }
+      .header-cta { display: none; }
+      .btn-cta { padding: 8px 16px; font-size: 13px; }
+      .game-wrap { padding: 20px 14px 32px; }
+      .game-title { font-size: 24px; }
+      .game-subtitle { font-size: 14px; }
+      .game-instructions { font-size: 13px; }
+      .term-grid { gap: 8px; }
+      .term-chip { padding: 10px 6px; font-size: 13px; min-height: 52px; }
+      .solved-row { padding: 14px; }
+      .solved-row-label { font-size: 16px; }
+      .solved-row-terms { font-size: 13px; }
+      .modal { width: 92vw; min-width: 0; padding: 28px 18px 20px; }
+      .actions { gap: 8px; }
+      .btn-game { padding: 9px 16px; font-size: 13px; }
+    }
+
+    /* ── iPhone SE / small phones ─────────────── */
+    @media (max-width: 375px) {
+      .game-wrap { padding: 16px 10px 24px; }
+      .game-title { font-size: 22px; }
+      .term-grid { gap: 6px; }
+      .term-chip { padding: 10px 4px; font-size: 12px; min-height: 48px; }
+      .solved-row { padding: 12px 14px; }
+      .solved-row-label { font-size: 15px; }
+      .solved-row-terms { font-size: 12px; }
+      .modal { padding: 24px 14px 18px; }
+      .btn-game { padding: 8px 14px; font-size: 12px; }
+    }
+
+    /* ── Utility ────────────────────────────────── */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <a href="index.html" class="btn-back" aria-label="Tilbake til forsiden">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Spill
+    </a>
+  </div>
+  <div class="header-center">
+    <a href="index.html" class="logo" aria-label="Klassekampen">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 39">
+        <path d="M183.903 37.9992H189.193V20.1763L193.992 38.0029H200.75V1.12608H195.46V18.8528L190.661 1.12608H183.903V37.9992ZM182.044 37.9992V31.2412H176.262V22.6237H181.06V15.13H176.262V7.88406H182.04V1.12608H169.992V37.9992H182.044ZM159.123 8.37206H160.002C161.326 8.37206 162.354 9.83974 162.354 14.4461C162.354 19.0007 161.326 20.5202 160.002 20.5202H159.123V8.37206ZM152.853 37.9992H159.123V27.2264H159.807C164.753 27.2264 168.62 23.4555 168.62 14.4461C168.62 5.09288 164.753 1.12608 159.807 1.12608H152.853V37.9992ZM127.584 37.9992H133.362V16.1097L136.889 37.9992H140.904L144.431 16.1097V37.9992H150.701V1.12608H141.496L139.144 19.3926L136.793 1.12608H127.588V37.9992H127.584ZM116.615 26.0027L117.939 9.79168L119.262 26.0027H116.615ZM109.758 37.9992H115.636L116.028 33.3485H119.846L120.238 37.9992H126.213L122.59 1.12238H113.384L109.758 37.9992ZM92.6186 37.9992H98.8886V21.4961L102.415 37.9992H109.369L104.715 18.265L109.366 1.12608H102.316L98.8886 16.6975V1.12608H92.6186V37.9992ZM78.7108 37.9992H90.7591V31.2412H84.9808V22.6237H89.7794V15.13H84.9808V7.88406H90.7591V1.12608H78.7108V37.9992ZM62.3038 28.6978C62.7918 36.3874 66.0266 38.5427 70.1894 38.5427C75.036 38.5427 77.8272 35.1156 77.8272 29.0416C77.8272 20.3723 69.0618 14.3019 69.0618 9.01162C69.0618 7.78794 69.7457 7.34801 70.3335 7.34801C71.4093 7.34801 71.853 8.76763 71.853 12.0505L77.6313 10.4349C77.1433 2.74533 74.0563 0.590027 70.0415 0.590027C65.2909 0.590027 62.4998 4.06514 62.4998 9.1595C62.4998 18.4166 71.365 24.243 71.365 30.1174C71.365 31.293 70.6811 31.781 70.0932 31.781C68.8696 31.781 68.3779 30.3614 68.3779 27.0785L62.3038 28.6978ZM46.2924 28.6978C46.7804 36.3874 50.0152 38.5427 54.178 38.5427C59.0246 38.5427 61.8158 35.1156 61.8158 29.0416C61.8158 20.3723 53.0504 14.3019 53.0504 9.01162C53.0504 7.78794 53.7343 7.34801 54.3222 7.34801C55.398 7.34801 55.8416 8.76763 55.8416 12.0505L61.6199 10.4349C61.1319 2.74533 58.045 0.590027 54.0301 0.590027C49.2795 0.590027 46.4884 4.06514 46.4884 9.1595C46.4884 18.4166 55.3536 24.243 55.3536 30.1174C55.3536 31.293 54.6697 31.781 54.0819 31.781C52.8582 31.781 52.3665 30.3614 52.3665 27.0785L46.2924 28.6978ZM36.6915 26.0027L38.015 9.79168L39.3385 26.0027H36.6915ZM29.8374 37.9992H35.7155L36.1074 33.3485H39.9263L40.3182 37.9992H46.2924L42.6694 1.12238H33.4641L29.8374 37.9992ZM18.4768 37.9992H28.9575V30.5092H25.0388V1.12608H18.4768V37.9992ZM0.75 1.12608V38.0029H7.01629V21.4961L10.5432 37.9992H17.4971L12.8426 18.265L17.4971 1.12608H10.4433L7.01629 16.6975V1.12608H0.75Z"/>
+      </svg>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="btn-cta header-cta">Prøv for 1 krone</button>
+  </div>
+</header>
+
+<!-- ═══ GAME ═════════════════════════════════════ -->
+<main class="game-wrap" id="gameWrap">
+  <div class="game-header">
+    <span class="game-tag">Ukens Struktur</span>
+    <h1 class="game-title" id="puzzleTitle"></h1>
+    <p class="game-subtitle" id="puzzleSubtitle"></p>
+    <p class="game-instructions">Finn fire grupper med fire begreper som hører sammen.</p>
+  </div>
+
+  <div class="attempts-bar" id="attemptsBar"></div>
+  <div class="toast" id="toast"></div>
+  <div class="solved-rows" id="solvedRows"></div>
+  <div class="term-grid" id="termGrid" role="group" aria-label="Begreper"></div>
+
+  <div class="actions" id="actions">
+    <button class="btn-game" id="btnShuffle" type="button">Stokk om</button>
+    <button class="btn-game" id="btnClear" type="button" disabled>Tøm valg</button>
+    <button class="btn-game hint-btn" id="btnHint" type="button">Hint</button>
+    <button class="btn-game primary" id="btnSubmit" type="button" disabled>Send inn</button>
+  </div>
+</main>
+
+<!-- ═══ END MODAL ════════════════════════════════ -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="modal" id="endModal" role="dialog" aria-modal="true" aria-label="Resultat">
+  <button class="modal-close" id="modalClose" aria-label="Lukk">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+
+  <div class="modal-status" id="modalStatus"></div>
+  <div class="share-block" id="shareBlock"></div>
+  <div class="explainers" id="explainers"></div>
+  <div class="subscriber-panel">
+    <h4>Abonnenter får mer</h4>
+    <ul>
+      <li>Tilgang til arkivet</li>
+      <li>Hint og utfordrende modus</li>
+      <li>Ukentlig statistikk</li>
+      <li>Redaksjonens struktur-notat</li>
+    </ul>
+    <button class="btn-cta">Prøv for 1 krone</button>
+  </div>
+</div>
+
+<!-- ═══ SCRIPT ═══════════════════════════════════ -->
+<script>
+// ─── Puzzle Data ──────────────────────────────────
+const PUZZLE = {
+  id: "p-2026-uke-10",
+  slug: "2026-uke-10",
+  title: "Uke 10: Konfliktlinjer",
+  weekStart: "2026-03-02",
+  weekEnd: "2026-03-08",
+  attemptsAllowed: 8,
+  categories: [
+    {
+      id: "c1",
+      label: "Arbeidsliv",
+      difficulty: 1,
+      explain: "Frontfagsmodellen og kommende tariffoppgjør dominerer nyhetsbildet. LO og NHO forbereder seg på det som kan bli et av de mest krevende oppgjørene på flere år, med streik som et reelt virkemiddel dersom partene ikke finner sammen.",
+      related: [
+        { title: "Forbundsleder: – Streik er ingen trussel, det er et verktøy", url: "#" },
+        { title: "NHO vil ha moderasjon – LO svarer med krav", url: "#" },
+        { title: "Hva er frontfagsmodellen?", url: "#" }
+      ]
+    },
+    {
+      id: "c2",
+      label: "Økonomi",
+      difficulty: 2,
+      explain: "Norges Banks rentebeslutning og stigende inflasjon preger det økonomiske bildet. Subsidier til energimarkedet debatteres heftig, mens spørsmålet om bærekraftig energipolitikk splitter det politiske landskapet.",
+      related: [
+        { title: "Renta holdes uendret – men presset øker", url: "#" },
+        { title: "Inflasjon rammer ujevnt: hvem betaler prisen?", url: "#" },
+        { title: "Energisubsidier: kostnad eller investering?", url: "#" }
+      ]
+    },
+    {
+      id: "c3",
+      label: "Internasjonalt",
+      difficulty: 3,
+      explain: "FNs sikkerhetsråd har denne uken diskutert nye sanksjoner og mulige våpenhviler i flere konfliktområder. Norges rolle i multilaterale prosesser er igjen under lupen, med press fra flere hold om å ta tydeligere stilling.",
+      related: [
+        { title: "Sikkerhetsrådet splittet om nye sanksjoner", url: "#" },
+        { title: "Analyse: Kan våpenhvilen holde?", url: "#" },
+        { title: "Norge i FN: mellom stormaktene", url: "#" }
+      ]
+    },
+    {
+      id: "c4",
+      label: "Kultur",
+      difficulty: 4,
+      explain: "Bokmessa i Leipzig satte norsk litteratur i sentrum. Debatten om litterær kanon og essayets plass i offentligheten har engasjert kulturfeltet, mens kritikken av kritikken fortsetter å avdekke maktstrukturene i norsk kulturliv.",
+      related: [
+        { title: "Leipzig: Norge som litterært foregangsland", url: "#" },
+        { title: "Hvem bestemmer kanon?", url: "#" },
+        { title: "Essayet lever – men for hvem?", url: "#" }
+      ]
+    }
+  ],
+  terms: [
+    { id: "t1",  text: "LO",             categoryId: "c1" },
+    { id: "t2",  text: "NHO",            categoryId: "c1" },
+    { id: "t3",  text: "Tariffoppgjør",  categoryId: "c1" },
+    { id: "t4",  text: "Streik",         categoryId: "c1" },
+    { id: "t5",  text: "Inflasjon",      categoryId: "c2" },
+    { id: "t6",  text: "Rente",          categoryId: "c2" },
+    { id: "t7",  text: "Subsidier",      categoryId: "c2" },
+    { id: "t8",  text: "Energimarked",   categoryId: "c2" },
+    { id: "t9",  text: "FN",             categoryId: "c3" },
+    { id: "t10", text: "Sikkerhetsrådet",categoryId: "c3" },
+    { id: "t11", text: "Våpenhvile",     categoryId: "c3" },
+    { id: "t12", text: "Sanksjoner",     categoryId: "c3" },
+    { id: "t13", text: "Bokmesse",       categoryId: "c4" },
+    { id: "t14", text: "Essay",          categoryId: "c4" },
+    { id: "t15", text: "Kritikk",        categoryId: "c4" },
+    { id: "t16", text: "Kanon",          categoryId: "c4" }
+  ],
+  publishedAt: "2026-03-01T10:00:00Z"
+};
+
+const CATEGORY_STYLES = [
+  { bg: "#e9c46a", text: "#5a4310", emoji: "\u{1F7E8}" },
+  { bg: "#6aaa64", text: "#fff",    emoji: "\u{1F7E9}" },
+  { bg: "#6ba3d6", text: "#fff",    emoji: "\u{1F7E6}" },
+  { bg: "#b794f4", text: "#fff",    emoji: "\u{1F7EA}" }
+];
+
+const LS_KEY = "ukens_struktur_" + PUZZLE.id;
+
+// ─── State ────────────────────────────────────────
+let state = {
+  puzzleId: PUZZLE.id,
+  attemptsUsed: 0,
+  solvedCategoryIds: [],
+  incorrectGuesses: [],
+  allGuesses: [],
+  selectedTermIds: [],
+  displayOrder: [],
+  hintsUsed: 0,
+  startedAt: null,
+  completedAt: null,
+  status: "playing"
+};
+
+// ─── DOM refs ─────────────────────────────────────
+const $title      = document.getElementById("puzzleTitle");
+const $subtitle   = document.getElementById("puzzleSubtitle");
+const $attemptsBar= document.getElementById("attemptsBar");
+const $toast      = document.getElementById("toast");
+const $solvedRows = document.getElementById("solvedRows");
+const $termGrid   = document.getElementById("termGrid");
+const $btnSubmit  = document.getElementById("btnSubmit");
+const $btnClear   = document.getElementById("btnClear");
+const $btnHint    = document.getElementById("btnHint");
+const $btnShuffle = document.getElementById("btnShuffle");
+const $actions    = document.getElementById("actions");
+const $modalBg    = document.getElementById("modalBackdrop");
+const $modal      = document.getElementById("endModal");
+const $modalClose = document.getElementById("modalClose");
+const $modalStatus= document.getElementById("modalStatus");
+const $shareBlock = document.getElementById("shareBlock");
+const $explainers = document.getElementById("explainers");
+
+// ─── Helpers ──────────────────────────────────────
+function getCat(id) { return PUZZLE.categories.find(c => c.id === id); }
+function getTermCat(termId) { return PUZZLE.terms.find(t => t.id === termId).categoryId; }
+function catStyle(cat) { return CATEGORY_STYLES[cat.difficulty - 1]; }
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function formatWeek(start, end) {
+  const opts = { day: "numeric", month: "long" };
+  const s = new Date(start).toLocaleDateString("nb-NO", opts);
+  const e = new Date(end).toLocaleDateString("nb-NO", opts);
+  return s + " – " + e;
+}
+
+function arraysMatchUnordered(a, b) {
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.every((v, i) => v === sb[i]);
+}
+
+// ─── Persistence ──────────────────────────────────
+function saveState() {
+  try {
+    const s = { ...state, selectedTermIds: [] };
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  } catch {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    if (s.puzzleId !== PUZZLE.id) return false;
+    Object.assign(state, s);
+    state.selectedTermIds = [];
+    return true;
+  } catch { return false; }
+}
+
+// ─── Toast ────────────────────────────────────────
+let toastTimeout;
+function showToast(msg, type, duration = 2000) {
+  clearTimeout(toastTimeout);
+  $toast.textContent = msg;
+  $toast.className = "toast visible " + (type || "");
+  toastTimeout = setTimeout(() => { $toast.className = "toast"; }, duration);
+}
+
+// ─── Render ───────────────────────────────────────
+function render() {
+  renderAttempts();
+  renderSolvedRows();
+  renderGrid();
+  renderButtons();
+}
+
+function renderAttempts() {
+  const total = PUZZLE.attemptsAllowed;
+  let html = '<span class="attempts-label">Forsøk igjen:</span>';
+  for (let i = 0; i < total; i++) {
+    html += '<span class="attempt-dot' + (i < state.attemptsUsed ? " used" : "") + '"></span>';
+  }
+  $attemptsBar.innerHTML = html;
+}
+
+function renderSolvedRows() {
+  $solvedRows.innerHTML = state.solvedCategoryIds.map(cid => {
+    const cat = getCat(cid);
+    const style = catStyle(cat);
+    const terms = PUZZLE.terms.filter(t => t.categoryId === cid).map(t => t.text).join(" \u00B7 ");
+    return '<div class="solved-row" style="background:' + style.bg + ';color:' + style.text + '">' +
+      '<div class="solved-row-label">' + cat.label + '</div>' +
+      '<div class="solved-row-terms">' + terms + '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function renderGrid() {
+  const solvedTermIds = new Set();
+  state.solvedCategoryIds.forEach(cid => {
+    PUZZLE.terms.filter(t => t.categoryId === cid).forEach(t => solvedTermIds.add(t.id));
+  });
+
+  const remaining = state.displayOrder.filter(tid => !solvedTermIds.has(tid));
+
+  $termGrid.innerHTML = remaining.map(tid => {
+    const term = PUZZLE.terms.find(t => t.id === tid);
+    const isSel = state.selectedTermIds.includes(tid);
+    return '<button class="term-chip' + (isSel ? " selected" : "") + '" ' +
+      'data-id="' + tid + '" ' +
+      'type="button" ' +
+      'aria-pressed="' + isSel + '">' +
+      term.text +
+    '</button>';
+  }).join("");
+}
+
+function renderButtons() {
+  const selCount = state.selectedTermIds.length;
+  $btnSubmit.disabled = selCount !== 4 || state.status !== "playing";
+  $btnClear.disabled = selCount === 0 || state.status !== "playing";
+  $btnHint.disabled = state.status !== "playing";
+  $btnShuffle.disabled = state.status !== "playing";
+
+  if (state.status !== "playing") {
+    $actions.classList.add("hidden");
+  } else {
+    $actions.classList.remove("hidden");
+  }
+}
+
+// ─── Term selection ───────────────────────────────
+function toggleTerm(termId) {
+  if (state.status !== "playing") return;
+  const idx = state.selectedTermIds.indexOf(termId);
+  if (idx >= 0) {
+    state.selectedTermIds.splice(idx, 1);
+  } else if (state.selectedTermIds.length < 4) {
+    state.selectedTermIds.push(termId);
+  }
+  renderGrid();
+  renderButtons();
+}
+
+// ─── Submit guess ─────────────────────────────────
+function submitGuess() {
+  if (state.selectedTermIds.length !== 4 || state.status !== "playing") return;
+
+  const guess = [...state.selectedTermIds];
+
+  const isDuplicate = state.incorrectGuesses.some(prev => arraysMatchUnordered(prev, guess));
+  if (isDuplicate) {
+    showToast("Du har allerede prøvd denne kombinasjonen.", "error");
+    return;
+  }
+
+  if (!state.startedAt) state.startedAt = new Date().toISOString();
+
+  const catIds = guess.map(tid => getTermCat(tid));
+  const allSame = catIds.every(c => c === catIds[0]);
+
+  state.allGuesses.push(guess);
+
+  if (allSame) {
+    handleCorrectGuess(catIds[0], guess);
+  } else {
+    handleIncorrectGuess(guess, catIds);
+  }
+}
+
+function handleCorrectGuess(categoryId, guess) {
+  state.solvedCategoryIds.push(categoryId);
+  state.selectedTermIds = [];
+
+  const chips = guess.map(tid => $termGrid.querySelector('[data-id="' + tid + '"]')).filter(Boolean);
+  chips.forEach(el => el.classList.add("correct-flash"));
+
+  showToast("Riktig!", "success", 1500);
+
+  setTimeout(() => {
+    if (state.solvedCategoryIds.length === 4) {
+      state.status = "won";
+      state.completedAt = new Date().toISOString();
+    }
+    render();
+    saveState();
+    if (state.status === "won") {
+      setTimeout(() => showEndModal(), 600);
+    }
+  }, 550);
+}
+
+function handleIncorrectGuess(guess, catIds) {
+  state.attemptsUsed++;
+  state.incorrectGuesses.push(guess);
+  state.selectedTermIds = [];
+
+  const chips = guess.map(tid => $termGrid.querySelector('[data-id="' + tid + '"]')).filter(Boolean);
+  chips.forEach(el => {
+    el.classList.remove("selected");
+    el.classList.add("shake");
+    el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true });
+  });
+
+  const counts = {};
+  catIds.forEach(c => { counts[c] = (counts[c] || 0) + 1; });
+  const maxCount = Math.max(...Object.values(counts));
+
+  if (maxCount === 3) {
+    showToast("Nesten! Én feil.", "error", 2500);
+  } else {
+    showToast("Feil kombinasjon.", "error", 2000);
+  }
+
+  if (state.attemptsUsed >= PUZZLE.attemptsAllowed) {
+    state.status = "lost";
+    state.completedAt = new Date().toISOString();
+    setTimeout(() => {
+      revealAll();
+      saveState();
+      setTimeout(() => showEndModal(), 800);
+    }, 800);
+  } else {
+    setTimeout(() => {
+      render();
+      saveState();
+    }, 600);
+  }
+}
+
+function revealAll() {
+  PUZZLE.categories
+    .filter(c => !state.solvedCategoryIds.includes(c.id))
+    .sort((a, b) => a.difficulty - b.difficulty)
+    .forEach(c => state.solvedCategoryIds.push(c.id));
+  state.selectedTermIds = [];
+  render();
+}
+
+// ─── Hint ─────────────────────────────────────────
+function useHint() {
+  if (state.status !== "playing") return;
+
+  const solvedTermIds = new Set();
+  state.solvedCategoryIds.forEach(cid => {
+    PUZZLE.terms.filter(t => t.categoryId === cid).forEach(t => solvedTermIds.add(t.id));
+  });
+
+  const unsolvedCats = PUZZLE.categories.filter(c => !state.solvedCategoryIds.includes(c.id));
+  if (unsolvedCats.length === 0) return;
+
+  const targetCat = unsolvedCats[Math.floor(Math.random() * unsolvedCats.length)];
+  const catTerms = PUZZLE.terms.filter(t => t.categoryId === targetCat.id);
+  const randomTerm = catTerms[Math.floor(Math.random() * catTerms.length)];
+
+  state.hintsUsed++;
+  showToast("«" + randomTerm.text + "» tilhører " + targetCat.label, "hint", 3500);
+  saveState();
+}
+
+// ─── Shuffle ──────────────────────────────────────
+function shuffle() {
+  const solvedTermIds = new Set();
+  state.solvedCategoryIds.forEach(cid => {
+    PUZZLE.terms.filter(t => t.categoryId === cid).forEach(t => solvedTermIds.add(t.id));
+  });
+  const remaining = state.displayOrder.filter(tid => !solvedTermIds.has(tid));
+  const shuffled = shuffleArray(remaining);
+  const solved = state.displayOrder.filter(tid => solvedTermIds.has(tid));
+  state.displayOrder = [...solved, ...shuffled];
+  renderGrid();
+}
+
+// ─── End Modal ────────────────────────────────────
+function showEndModal() {
+  renderModalStatus();
+  renderShareBlock();
+  renderExplainers();
+  $modal.classList.add("open");
+  $modalBg.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  $modal.classList.remove("open");
+  $modalBg.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function renderModalStatus() {
+  const won = state.status === "won";
+  $modalStatus.innerHTML =
+    '<div class="modal-status-icon">' + (won ? "\u{1F3AF}" : "\u{1F4D6}") + '</div>' +
+    '<h2>' + (won ? "Gratulerer!" : "Ikke denne gang") + '</h2>' +
+    '<p>' + (won
+      ? "Du løste ukens struktur med " + state.attemptsUsed + " feil av " + PUZZLE.attemptsAllowed + " mulige."
+      : "Du brukte alle forsøkene. Se løsningen og forklaringene nedenfor."
+    ) + '</p>';
+}
+
+function renderShareBlock() {
+  const guessRows = state.allGuesses.map(guess => {
+    return guess.map(tid => {
+      const catId = getTermCat(tid);
+      const cat = getCat(catId);
+      return catStyle(cat).emoji;
+    }).join("");
+  }).join("\n");
+
+  const shareText = "Ukens Struktur \u2013 " + PUZZLE.title + "\n" + guessRows + "\n" +
+    (state.status === "won" ? "Løst" : "Ikke løst") + " (" + state.attemptsUsed + "/" + PUZZLE.attemptsAllowed + " feil)";
+
+  $shareBlock.innerHTML =
+    '<div class="share-grid">' + guessRows.replace(/\n/g, "<br>") + '</div>' +
+    '<button class="btn-share" id="btnShareCopy">Del resultatet</button>' +
+    '<div class="share-copied" id="shareCopied">Kopiert til utklippstavlen!</div>';
+
+  document.getElementById("btnShareCopy").addEventListener("click", () => {
+    navigator.clipboard.writeText(shareText).then(() => {
+      document.getElementById("shareCopied").classList.add("visible");
+      setTimeout(() => document.getElementById("shareCopied").classList.remove("visible"), 2000);
+    }).catch(() => {
+      showToast("Kunne ikke kopiere", "error");
+    });
+  });
+}
+
+function renderExplainers() {
+  let html = '<h3>Redaksjonens forklaring</h3>';
+  PUZZLE.categories.sort((a, b) => a.difficulty - b.difficulty).forEach(cat => {
+    const style = catStyle(cat);
+    const terms = PUZZLE.terms.filter(t => t.categoryId === cat.id).map(t => t.text).join(", ");
+    html += '<div class="explainer-item">' +
+      '<button class="explainer-header" data-cat="' + cat.id + '">' +
+        '<span class="explainer-dot" style="background:' + style.bg + '"></span>' +
+        '<span class="explainer-label">' + cat.label + ' <span style="font-weight:400;color:#888;font-size:13px">(' + terms + ')</span></span>' +
+        '<span class="explainer-toggle">+</span>' +
+      '</button>' +
+      '<div class="explainer-body" id="exp-' + cat.id + '">' +
+        '<p class="explainer-text">' + cat.explain + '</p>' +
+        '<div class="explainer-links">' +
+          cat.related.map(r => '<a href="' + r.url + '">' + r.title + ' &rarr;</a>').join("") +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  $explainers.innerHTML = html;
+
+  $explainers.querySelectorAll(".explainer-header").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const body = document.getElementById("exp-" + btn.dataset.cat);
+      const isOpen = btn.classList.toggle("expanded");
+      body.style.maxHeight = isOpen ? body.scrollHeight + "px" : "0";
+    });
+  });
+}
+
+// ─── Events ───────────────────────────────────────
+$termGrid.addEventListener("click", e => {
+  const chip = e.target.closest(".term-chip");
+  if (!chip) return;
+  toggleTerm(chip.dataset.id);
+});
+
+$btnSubmit.addEventListener("click", submitGuess);
+$btnClear.addEventListener("click", () => {
+  state.selectedTermIds = [];
+  renderGrid();
+  renderButtons();
+});
+$btnHint.addEventListener("click", useHint);
+$btnShuffle.addEventListener("click", shuffle);
+$modalClose.addEventListener("click", closeModal);
+$modalBg.addEventListener("click", closeModal);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeModal();
+  if (e.key === "Enter" && state.selectedTermIds.length === 4 && state.status === "playing") submitGuess();
+});
+
+// ─── Init ─────────────────────────────────────────
+function init() {
+  $title.textContent = PUZZLE.title;
+  $subtitle.textContent = formatWeek(PUZZLE.weekStart, PUZZLE.weekEnd);
+
+  const restored = loadState();
+  if (!restored) {
+    state.displayOrder = shuffleArray(PUZZLE.terms.map(t => t.id));
+  }
+
+  render();
+
+  if (state.status !== "playing") {
+    setTimeout(() => showEndModal(), 400);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klassekampen – Wireframe</title>
+  <link rel="stylesheet" href="trade-gothic-lt-std-webfont/style.css">
+  <style>
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Trade Gothic LT Std Regular', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      color: #1a1a1a;
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ───────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .header-left { display: flex; align-items: center; }
+    .header-center { position: absolute; left: 50%; transform: translateX(-50%); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    /* Search button */
+    .btn-search {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1.5px solid #ccc;
+      border-radius: 24px;
+      padding: 8px 18px;
+      font-size: 15px;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .btn-search:hover { border-color: #888; }
+    .btn-search svg { width: 16px; height: 16px; }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .logo svg {
+      height: 38px;
+      width: auto;
+      fill: #d42b2b;
+    }
+    @media (max-width: 600px) { .logo svg { height: 26px; } }
+
+    /* CTA button */
+    .btn-cta {
+      background: #d42b2b;
+      color: #fff;
+      border: none;
+      border-radius: 28px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .btn-cta:hover { background: #b82222; }
+
+    /* Hamburger button */
+    .btn-hamburger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 6px;
+    }
+    .btn-hamburger span {
+      display: block;
+      width: 26px;
+      height: 2.5px;
+      background: #1a1a1a;
+      border-radius: 2px;
+      transition: all .3s ease;
+    }
+
+    /* ── Menu Overlay ─────────────────────────────── */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      background: #fff;
+      z-index: 200;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+      overflow-y: auto;
+      box-shadow: -4px 0 24px rgba(0,0,0,.12);
+    }
+    .menu-overlay.open { transform: translateX(0); }
+
+    .menu-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 199;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .menu-backdrop.open { opacity: 1; pointer-events: all; }
+
+    /* Menu header */
+    .menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+    .menu-login {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: none;
+      border: none;
+      font-size: 15px;
+      color: #1a1a1a;
+      cursor: pointer;
+    }
+    .menu-login svg { width: 32px; height: 32px; }
+    .btn-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .btn-close svg { width: 28px; height: 28px; }
+
+    /* Primary links */
+    .menu-primary {
+      padding: 8px 24px 20px;
+    }
+    .menu-primary a {
+      display: block;
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-weight: 900;
+      font-size: 28px;
+      color: #d42b2b;
+      text-decoration: none;
+      padding: 4px 0;
+      transition: opacity .2s;
+    }
+    .menu-primary a:hover { opacity: .7; }
+
+    /* Expandable sections */
+    .menu-sections {
+      padding: 0 24px;
+    }
+    .menu-section {
+      border-top: 1px solid #e5e5e5;
+    }
+    .menu-section-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 16px 0;
+      font-size: 16px;
+      color: #d42b2b;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .menu-section-btn:hover { opacity: .7; }
+    .menu-section-btn .icon-plus {
+      font-size: 22px;
+      font-weight: 300;
+      color: #999;
+      transition: transform .25s ease;
+    }
+    .menu-section-btn.expanded .icon-plus { transform: rotate(45deg); }
+
+    .menu-section-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .menu-section-content a {
+      display: block;
+      padding: 8px 0 8px 12px;
+      font-size: 15px;
+      color: #444;
+      text-decoration: none;
+    }
+    .menu-section-content a:hover { color: #d42b2b; }
+
+    /* Plain links */
+    .menu-plain {
+      padding: 0 24px;
+    }
+    .menu-plain a {
+      display: block;
+      padding: 16px 0;
+      font-size: 16px;
+      color: #d42b2b;
+      text-decoration: none;
+      border-top: 1px solid #e5e5e5;
+      transition: opacity .2s;
+    }
+    .menu-plain a:hover { opacity: .7; }
+
+    /* Menu CTA */
+    .menu-cta-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 28px 24px 20px;
+    }
+    .menu-cta-wrap .btn-cta {
+      font-size: 16px;
+      padding: 14px 32px;
+    }
+
+    /* Menu footer */
+    .menu-footer {
+      padding: 12px 24px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 20px;
+    }
+    .menu-footer a {
+      font-size: 14px;
+      color: #666;
+      text-decoration: none;
+    }
+    .menu-footer a:hover { color: #d42b2b; }
+
+    /* ── Wireframe Content Area ───────────────────── */
+    .content {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      text-align: center;
+    }
+
+    .wire-tag {
+      display: inline-block;
+      font-size: 14px;
+      color: #d42b2b;
+      margin-bottom: 16px;
+      letter-spacing: .5px;
+    }
+
+    .wire-headline {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+    @media (max-width: 600px) { .wire-headline { font-size: 28px; } }
+
+    .wire-lead {
+      font-size: 18px;
+      line-height: 1.55;
+      color: #444;
+      max-width: 560px;
+      margin: 0 auto 20px;
+    }
+
+    .wire-byline {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 32px;
+    }
+
+    .wire-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #e8e8e8;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* ── Games Section ────────────────────────────── */
+    .games-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .games-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #1a1a1a;
+    }
+
+    .games-section-header h2 {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: #1a1a1a;
+    }
+
+    .games-section-header a {
+      font-size: 14px;
+      color: #d42b2b;
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity .2s;
+    }
+    .games-section-header a:hover { opacity: .7; }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .game-card {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 24px 20px;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .2s, box-shadow .2s;
+      cursor: pointer;
+      border: 1px solid #eee;
+    }
+    .game-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    }
+
+    .game-card-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-card-icon svg,
+    .game-card-icon img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .game-card-title {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: #1a1a1a;
+    }
+
+    .game-card-desc {
+      font-family: 'Trade Gothic LT Std Regular', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif;
+      font-size: 14px;
+      font-weight: normal;
+      color: #777;
+      line-height: 1.4;
+    }
+
+    .game-card-badge {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #fff;
+      background: #d42b2b;
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+    .game-card-badge.green { background: #2a9d4e; }
+
+    /* ── iPad (portrait & landscape) ──────────── */
+    @media (max-width: 1024px) {
+      .content { padding: 32px 20px 60px; }
+      .games-section { padding: 0 20px 60px; }
+      .games-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    }
+
+    /* ── iPad mini / small tablets ────────────── */
+    @media (max-width: 768px) {
+      header { padding: 12px 16px; }
+      .content { padding: 28px 16px 50px; }
+      .wire-headline { font-size: 34px; }
+      .wire-lead { font-size: 16px; }
+      .games-section { padding: 0 16px 50px; }
+      .games-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .games-section-header h2 { font-size: 24px; }
+    }
+
+    /* ── iPhone (all sizes) ───────────────────── */
+    @media (max-width: 600px) {
+      header { padding: 10px 14px; }
+      .header-right .header-cta { display: none !important; }
+      .btn-search { padding: 6px 12px; font-size: 13px; }
+      .content { padding: 24px 14px 40px; }
+      .wire-headline { font-size: 28px; }
+      .wire-lead { font-size: 15px; margin-bottom: 16px; }
+      .wire-byline { font-size: 12px; margin-bottom: 24px; }
+      .games-section { padding: 0 14px 40px; }
+      .games-section-header { margin-bottom: 16px; padding-bottom: 10px; }
+      .games-section-header h2 { font-size: 22px; }
+      .games-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .game-card { padding: 18px 14px; }
+      .game-card-icon { width: 80px; height: 80px; }
+      .game-card-icon svg, .game-card-icon img { width: 80px; height: 80px; }
+      .game-card-title { font-size: 20px; }
+      .game-card-desc { font-size: 13px; }
+    }
+
+    /* ── iPhone SE / small phones ─────────────── */
+    @media (max-width: 375px) {
+      header { padding: 8px 10px; }
+      .btn-search { display: none; }
+      .content { padding: 20px 10px 32px; }
+      .wire-headline { font-size: 24px; }
+      .wire-lead { font-size: 14px; }
+      .games-section { padding: 0 10px 32px; }
+      .games-grid { gap: 8px; }
+      .game-card { padding: 14px 10px; }
+      .game-card-icon { width: 64px; height: 64px; }
+      .game-card-icon svg, .game-card-icon img { width: 64px; height: 64px; }
+      .game-card-title { font-size: 17px; }
+      .game-card-desc { font-size: 12px; }
+    }
+
+    /* ── Utility ──────────────────────────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <button class="btn-search" aria-label="Søk">
+      <span>Søk</span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="header-center">
+    <a href="#" class="logo" aria-label="Klassekampen">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 39">
+        <path d="M183.903 37.9992H189.193V20.1763L193.992 38.0029H200.75V1.12608H195.46V18.8528L190.661 1.12608H183.903V37.9992ZM182.044 37.9992V31.2412H176.262V22.6237H181.06V15.13H176.262V7.88406H182.04V1.12608H169.992V37.9992H182.044ZM159.123 8.37206H160.002C161.326 8.37206 162.354 9.83974 162.354 14.4461C162.354 19.0007 161.326 20.5202 160.002 20.5202H159.123V8.37206ZM152.853 37.9992H159.123V27.2264H159.807C164.753 27.2264 168.62 23.4555 168.62 14.4461C168.62 5.09288 164.753 1.12608 159.807 1.12608H152.853V37.9992ZM127.584 37.9992H133.362V16.1097L136.889 37.9992H140.904L144.431 16.1097V37.9992H150.701V1.12608H141.496L139.144 19.3926L136.793 1.12608H127.588V37.9992H127.584ZM116.615 26.0027L117.939 9.79168L119.262 26.0027H116.615ZM109.758 37.9992H115.636L116.028 33.3485H119.846L120.238 37.9992H126.213L122.59 1.12238H113.384L109.758 37.9992ZM92.6186 37.9992H98.8886V21.4961L102.415 37.9992H109.369L104.715 18.265L109.366 1.12608H102.316L98.8886 16.6975V1.12608H92.6186V37.9992ZM78.7108 37.9992H90.7591V31.2412H84.9808V22.6237H89.7794V15.13H84.9808V7.88406H90.7591V1.12608H78.7108V37.9992ZM62.3038 28.6978C62.7918 36.3874 66.0266 38.5427 70.1894 38.5427C75.036 38.5427 77.8272 35.1156 77.8272 29.0416C77.8272 20.3723 69.0618 14.3019 69.0618 9.01162C69.0618 7.78794 69.7457 7.34801 70.3335 7.34801C71.4093 7.34801 71.853 8.76763 71.853 12.0505L77.6313 10.4349C77.1433 2.74533 74.0563 0.590027 70.0415 0.590027C65.2909 0.590027 62.4998 4.06514 62.4998 9.1595C62.4998 18.4166 71.365 24.243 71.365 30.1174C71.365 31.293 70.6811 31.781 70.0932 31.781C68.8696 31.781 68.3779 30.3614 68.3779 27.0785L62.3038 28.6978ZM46.2924 28.6978C46.7804 36.3874 50.0152 38.5427 54.178 38.5427C59.0246 38.5427 61.8158 35.1156 61.8158 29.0416C61.8158 20.3723 53.0504 14.3019 53.0504 9.01162C53.0504 7.78794 53.7343 7.34801 54.3222 7.34801C55.398 7.34801 55.8416 8.76763 55.8416 12.0505L61.6199 10.4349C61.1319 2.74533 58.045 0.590027 54.0301 0.590027C49.2795 0.590027 46.4884 4.06514 46.4884 9.1595C46.4884 18.4166 55.3536 24.243 55.3536 30.1174C55.3536 31.293 54.6697 31.781 54.0819 31.781C52.8582 31.781 52.3665 30.3614 52.3665 27.0785L46.2924 28.6978ZM36.6915 26.0027L38.015 9.79168L39.3385 26.0027H36.6915ZM29.8374 37.9992H35.7155L36.1074 33.3485H39.9263L40.3182 37.9992H46.2924L42.6694 1.12238H33.4641L29.8374 37.9992ZM18.4768 37.9992H28.9575V30.5092H25.0388V1.12608H18.4768V37.9992ZM0.75 1.12608V38.0029H7.01629V21.4961L10.5432 37.9992H17.4971L12.8426 18.265L17.4971 1.12608H10.4433L7.01629 16.6975V1.12608H0.75Z"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="header-right">
+    <button class="btn-cta header-cta">Prøv for 1 krone</button>
+    <button class="btn-hamburger" id="menuOpen" aria-label="Åpne meny">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══ MENU OVERLAY ════════════════════════════════ -->
+<div class="menu-backdrop" id="menuBackdrop"></div>
+
+<nav class="menu-overlay" id="menuOverlay" aria-label="Hovedmeny">
+  <!-- Menu header -->
+  <div class="menu-header">
+    <button class="menu-login" aria-label="Logg inn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 4-7 8-7s8 3 8 7"/>
+      </svg>
+      Logg inn
+    </button>
+    <button class="btn-close" id="menuClose" aria-label="Lukk meny">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Primary links -->
+  <div class="menu-primary">
+    <a href="#">Utgaven</a>
+    <a href="#">E-avisa</a>
+    <a href="#">Podkast</a>
+    <a href="#">Arrangementer</a>
+    <a href="#spill">Spill</a>
+  </div>
+
+  <!-- Expandable sections -->
+  <div class="menu-sections">
+    <div class="menu-section">
+      <button class="menu-section-btn" aria-expanded="false">
+        Nyheter <span class="icon-plus">+</span>
+      </button>
+      <div class="menu-section-content">
+        <a href="#">Innenriks</a>
+        <a href="#">Utenriks</a>
+        <a href="#">Politikk</a>
+        <a href="#">Økonomi</a>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <button class="menu-section-btn" aria-expanded="false">
+        Meninger <span class="icon-plus">+</span>
+      </button>
+      <div class="menu-section-content">
+        <a href="#">Leder</a>
+        <a href="#">Kommentar</a>
+        <a href="#">Kronikk</a>
+        <a href="#">Debatt</a>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <button class="menu-section-btn" aria-expanded="false">
+        Kultur <span class="icon-plus">+</span>
+      </button>
+      <div class="menu-section-content">
+        <a href="#">Litteratur</a>
+        <a href="#">Musikk</a>
+        <a href="#">Film</a>
+        <a href="#">Kunst</a>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <button class="menu-section-btn" aria-expanded="false">
+        Dybde <span class="icon-plus">+</span>
+      </button>
+      <div class="menu-section-content">
+        <a href="#">Reportasje</a>
+        <a href="#">Intervju</a>
+        <a href="#">Feature</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plain links -->
+  <div class="menu-plain">
+    <a href="#">Kviss og krydder</a>
+    <a href="#">Bokmagasinet</a>
+    <a href="#">Musikkmagasinet</a>
+  </div>
+
+  <!-- CTA -->
+  <div class="menu-cta-wrap">
+    <button class="btn-cta">Prøv for 1 krone</button>
+  </div>
+
+  <!-- Footer links -->
+  <div class="menu-footer">
+    <a href="#">Kontakt</a>
+    <a href="#">Tips oss</a>
+    <a href="#">Ledige stillinger</a>
+    <a href="#">Delta i debatten</a>
+  </div>
+</nav>
+
+<!-- ═══ WIREFRAME CONTENT ═══════════════════════════ -->
+<main class="content">
+  <span class="wire-tag">Trygdeskandalen</span>
+  <h1 class="wire-headline">Her løper Stenseng<br>fra spørsmålene</h1>
+  <p class="wire-lead">
+    Ap-statsråden vil ikke la seg intervjue om hvorfor hun
+    nekter klagenemnda for ofre etter trygdeskandalen
+    innsyn i dokumenter nemnda trenger.
+  </p>
+  <p class="wire-byline">
+    Håvard Yttredal, Bjørn S. Kristiansen (tekst) og Tom Henning Bratlie (foto)<br>28. feb.
+  </p>
+  <div class="wire-image">[ Artikkel-bilde ]</div>
+</main>
+
+<!-- ═══ GAMES SECTION ═══════════════════════════════ -->
+<section class="games-section" id="spill">
+  <div class="games-section-header">
+    <h2>Spill</h2>
+    <a href="#">Se alle spill &rarr;</a>
+  </div>
+
+  <div class="games-grid">
+    <!-- Struktur -->
+    <a href="ukens-struktur.html" class="game-card">
+      <div class="game-card-icon">
+        <img src="struktur.svg" alt="" width="56" height="56">
+      </div>
+      <div class="game-card-title">Struktur</div>
+      <div class="game-card-desc">Finn fire skjulte kategorier</div>
+    </a>
+
+    <!-- Giljotinen -->
+    <a href="guillotine.html" class="game-card">
+      <div class="game-card-icon">
+        <img src="giljotinen.svg" alt="" width="56" height="56">
+      </div>
+      <div class="game-card-title">Giljotinen</div>
+      <div class="game-card-desc">Gjett ukens ord fra avisa</div>
+    </a>
+
+    <!-- Sudoku -->
+    <a href="sudoku.html" class="game-card">
+      <div class="game-card-icon">
+        <img src="sudoku.svg" alt="" width="56" height="56">
+      </div>
+      <div class="game-card-title">Sudoku</div>
+      <div class="game-card-desc">Tre vanskelighetsgrader</div>
+    </a>
+
+    <!-- Sjakk -->
+    <a href="sjakk.html" class="game-card">
+      <div class="game-card-icon">
+        <img src="horse.svg" alt="" width="56" height="56">
+      </div>
+      <div class="game-card-title">Sjakk</div>
+      <div class="game-card-desc">Løs ukens sjakkpuslespill</div>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ SCRIPT ══════════════════════════════════════ -->
+<script>
+  const overlay  = document.getElementById('menuOverlay');
+  const backdrop = document.getElementById('menuBackdrop');
+  const openBtn  = document.getElementById('menuOpen');
+  const closeBtn = document.getElementById('menuClose');
+
+  function openMenu() {
+    overlay.classList.add('open');
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    overlay.classList.remove('open');
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  openBtn.addEventListener('click', openMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  backdrop.addEventListener('click', closeMenu);
+
+  // Expandable sections
+  document.querySelectorAll('.menu-section-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const content = btn.nextElementSibling;
+      const isOpen  = btn.classList.toggle('expanded');
+      btn.setAttribute('aria-expanded', isOpen);
+      content.style.maxHeight = isOpen ? content.scrollHeight + 'px' : '0';
+    });
+  });
+
+  // Esc key to close
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeMenu();
+  });
+</script>
+
+</body>
+</html>
