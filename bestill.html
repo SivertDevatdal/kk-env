@@ -160,14 +160,17 @@
 
     /* Plan cards */
     .plan-card {
-      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
       border: 2px solid #e0e0e0;
       border-radius: 16px;
-      padding: 24px 24px 24px 60px;
+      padding: 24px;
       margin-bottom: 16px;
       cursor: pointer;
       transition: border-color .2s, box-shadow .2s;
       background: #fff;
+      position: relative;
     }
 
     .plan-card:hover {
@@ -183,10 +186,7 @@
 
     /* Custom radio */
     .radio-circle {
-      position: absolute;
-      left: 22px;
-      top: 50%;
-      transform: translateY(-50%);
+      flex-shrink: 0;
       width: 22px;
       height: 22px;
       border-radius: 50%;
@@ -195,6 +195,7 @@
       align-items: center;
       justify-content: center;
       transition: border-color .2s;
+      margin-top: 4px;
     }
 
     .radio-circle::after {
@@ -213,6 +214,11 @@
 
     .plan-card.selected .radio-circle::after {
       transform: scale(1);
+    }
+
+    .plan-info {
+      flex: 1;
+      min-width: 0;
     }
 
     .plan-name {
@@ -293,8 +299,7 @@
     @media (max-width: 600px) {
       .sub-page { padding: 28px 16px 48px; }
       .sub-heading { font-size: 24px; margin-bottom: 22px; }
-      .plan-card { padding: 20px 20px 20px 54px; }
-      .radio-circle { left: 18px; }
+      .plan-card { padding: 20px; }
       .plan-name { font-size: 19px; }
       .plan-desc { font-size: 14px; }
       .btn-continue { width: 240px; font-size: 16px; padding: 14px 0; }
@@ -367,10 +372,12 @@
   <label class="plan-card" data-plan="digital">
     <input type="radio" name="plan" value="digital">
     <span class="radio-circle"></span>
-    <div class="plan-name">Digital</div>
-    <div class="plan-desc">Full tilgang på nett hver dag. Musikk- og Bokmagasinet inkludert.</div>
-    <div class="plan-price">Deretter 399 kroner hver måned</div>
-    <div class="plan-price-student">Deretter 199 kroner hver måned</div>
+    <div class="plan-info">
+      <div class="plan-name">Digital</div>
+      <div class="plan-desc">Full tilgang på nett hver dag. Musikk- og Bokmagasinet inkludert.</div>
+      <div class="plan-price">Deretter 399 kroner hver måned</div>
+      <div class="plan-price-student">Deretter 199 kroner hver måned</div>
+    </div>
   </label>
 
   <!-- Helgepakka -->
@@ -378,20 +385,24 @@
     <input type="radio" name="plan" value="helgepakka" checked>
     <span class="radio-circle"></span>
     <span class="badge-popular">Mest populær</span>
-    <div class="plan-name">Helgepakka</div>
-    <div class="plan-desc">Papiravis fredag og lørdag + alt digitalt og alle magasiner.</div>
-    <div class="plan-price">Deretter 459 kroner hver måned</div>
-    <div class="plan-price-student">Deretter 229 kroner hver måned</div>
+    <div class="plan-info">
+      <div class="plan-name">Helgepakka</div>
+      <div class="plan-desc">Papiravis fredag og lørdag + alt digitalt og alle magasiner.</div>
+      <div class="plan-price">Deretter 459 kroner hver måned</div>
+      <div class="plan-price-student">Deretter 229 kroner hver måned</div>
+    </div>
   </label>
 
   <!-- Komplett -->
   <label class="plan-card" data-plan="komplett">
     <input type="radio" name="plan" value="komplett">
     <span class="radio-circle"></span>
-    <div class="plan-name">Komplett</div>
-    <div class="plan-desc">Papiravisa hver dag med alle magasiner + full tilgang på nett hver dag.</div>
-    <div class="plan-price">Deretter 539 kroner hver måned</div>
-    <div class="plan-price-student">Deretter 269 kroner hver måned</div>
+    <div class="plan-info">
+      <div class="plan-name">Komplett</div>
+      <div class="plan-desc">Papiravisa hver dag med alle magasiner + full tilgang på nett hver dag.</div>
+      <div class="plan-price">Deretter 539 kroner hver måned</div>
+      <div class="plan-price-student">Deretter 269 kroner hver måned</div>
+    </div>
   </label>
 
   <hr class="divider">
