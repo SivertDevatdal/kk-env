@@ -313,7 +313,7 @@
       background: rgba(212, 43, 43, .06);
     }
 
-    .digital-option input[type="radio"] { display: none; }
+    .digital-option input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
 
     .digital-option .radio-circle {
       margin-top: 0;
@@ -472,7 +472,7 @@
       <div class="plan-desc">Full tilgang på nett hver dag. Musikk- og Bokmagasinet inkludert.</div>
     </div>
     <div class="digital-options">
-      <label class="digital-option" data-plan="digital-monthly">
+      <div class="digital-option" data-plan="digital-monthly">
         <input type="radio" name="plan" value="digital-monthly">
         <span class="radio-circle"></span>
         <div class="digital-option-info">
@@ -480,8 +480,8 @@
           <div class="digital-option-price">Deretter 399 kr/mnd</div>
           <div class="digital-option-price plan-price-student">Deretter 299 kr/mnd</div>
         </div>
-      </label>
-      <label class="digital-option" data-plan="digital-3month">
+      </div>
+      <div class="digital-option" data-plan="digital-3month">
         <input type="radio" name="plan" value="digital-3month">
         <span class="radio-circle"></span>
         <div class="digital-option-info">
@@ -489,7 +489,7 @@
           <div class="digital-option-price">Spar over 40 % – ca. 233 kr/mnd</div>
         </div>
         <span class="digital-option-badge">Spar</span>
-      </label>
+      </div>
     </div>
   </div>
 
