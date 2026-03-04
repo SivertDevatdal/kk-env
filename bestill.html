@@ -255,6 +255,99 @@
       letter-spacing: .3px;
     }
 
+    /* ── Enhanced Digital card ────────────────────── */
+    .plan-card-digital {
+      border: 2px solid #e0e0e0;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      background: #fdf8f8;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .plan-card-digital.has-selection {
+      border-color: #d42b2b;
+      box-shadow: 0 0 0 1px #d42b2b;
+    }
+
+    .plan-card-digital-header {
+      padding: 24px 24px 16px;
+    }
+
+    .plan-card-digital-header .plan-name {
+      font-family: 'Trade Gothic Next LT Pro Heavy', 'Trade Gothic LT Std Bold Condensed No. 20', 'Helvetica Neue', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .plan-card-digital-header .plan-desc {
+      font-size: 15px;
+      color: #444;
+      line-height: 1.45;
+    }
+
+    .digital-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .digital-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 24px;
+      cursor: pointer;
+      border-top: 1px solid #eee;
+      transition: background .15s;
+    }
+
+    .digital-option:hover {
+      background: rgba(212, 43, 43, .04);
+    }
+
+    .digital-option.selected {
+      background: rgba(212, 43, 43, .06);
+    }
+
+    .digital-option input[type="radio"] { display: none; }
+
+    .digital-option .radio-circle {
+      margin-top: 0;
+    }
+
+    .digital-option-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .digital-option-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .digital-option-price {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .digital-option-badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: #fff;
+      background: #2a9d4e;
+      border-radius: 5px;
+      padding: 4px 10px;
+    }
+
     /* Divider */
     .divider {
       border: none;
@@ -294,6 +387,7 @@
     .student-prices .plan-price { display: none; }
     .student-prices .plan-price-student { display: block; }
     .plan-price-student { display: none; font-size: 14px; color: #888; }
+    .digital-option-price.plan-price-student { font-size: 13px; }
 
     /* ── Responsive ─────────────────────────────── */
     @media (max-width: 600px) {
@@ -304,6 +398,9 @@
       .plan-desc { font-size: 14px; }
       .btn-continue { width: 240px; font-size: 16px; padding: 14px 0; }
       .header-right .header-cta { display: none !important; }
+      .plan-card-digital-header { padding: 20px 20px 12px; }
+      .digital-option { padding: 12px 20px; }
+      .digital-option-title { font-size: 14px; }
     }
 
     @media (max-width: 375px) {
@@ -368,17 +465,33 @@
 
   <h1 class="sub-heading">Hvordan vil du lese avisa?</h1>
 
-  <!-- Digital -->
-  <label class="plan-card" data-plan="digital">
-    <input type="radio" name="plan" value="digital">
-    <span class="radio-circle"></span>
-    <div class="plan-info">
+  <!-- Digital (enhanced) -->
+  <div class="plan-card-digital" id="digitalCard">
+    <div class="plan-card-digital-header">
       <div class="plan-name">Digital</div>
       <div class="plan-desc">Full tilgang på nett hver dag. Musikk- og Bokmagasinet inkludert.</div>
-      <div class="plan-price">Deretter 399 kroner hver måned</div>
-      <div class="plan-price-student">Deretter 199 kroner hver måned</div>
     </div>
-  </label>
+    <div class="digital-options">
+      <label class="digital-option" data-plan="digital-monthly">
+        <input type="radio" name="plan" value="digital-monthly">
+        <span class="radio-circle"></span>
+        <div class="digital-option-info">
+          <div class="digital-option-title">Prøv for 1 krone</div>
+          <div class="digital-option-price">Deretter 399 kr/mnd</div>
+          <div class="digital-option-price plan-price-student">Deretter 299 kr/mnd</div>
+        </div>
+      </label>
+      <label class="digital-option" data-plan="digital-3month">
+        <input type="radio" name="plan" value="digital-3month">
+        <span class="radio-circle"></span>
+        <div class="digital-option-info">
+          <div class="digital-option-title">3 måneder for 700 kr</div>
+          <div class="digital-option-price">Spar over 40 % – ca. 233 kr/mnd</div>
+        </div>
+        <span class="digital-option-badge">Spar</span>
+      </label>
+    </div>
+  </div>
 
   <!-- Helgepakka -->
   <label class="plan-card selected" data-plan="helgepakka">
@@ -389,7 +502,7 @@
       <div class="plan-name">Helgepakka</div>
       <div class="plan-desc">Papiravis fredag og lørdag + alt digitalt og alle magasiner.</div>
       <div class="plan-price">Deretter 459 kroner hver måned</div>
-      <div class="plan-price-student">Deretter 229 kroner hver måned</div>
+      <div class="plan-price-student">Deretter 345 kroner hver måned</div>
     </div>
   </label>
 
@@ -401,7 +514,7 @@
       <div class="plan-name">Komplett</div>
       <div class="plan-desc">Papiravisa hver dag med alle magasiner + full tilgang på nett hver dag.</div>
       <div class="plan-price">Deretter 539 kroner hver måned</div>
-      <div class="plan-price-student">Deretter 269 kroner hver måned</div>
+      <div class="plan-price-student">Deretter 405 kroner hver måned</div>
     </div>
   </label>
 
@@ -419,12 +532,31 @@
 </div>
 
 <script>
-  const cards = document.querySelectorAll('.plan-card');
-  cards.forEach(card => {
+  const paperCards = document.querySelectorAll('.plan-card');
+  const digitalCard = document.getElementById('digitalCard');
+  const digitalOptions = document.querySelectorAll('.digital-option');
+  const allRadios = document.querySelectorAll('input[name="plan"]');
+
+  function clearAll() {
+    paperCards.forEach(c => c.classList.remove('selected'));
+    digitalCard.classList.remove('has-selection');
+    digitalOptions.forEach(o => o.classList.remove('selected'));
+  }
+
+  paperCards.forEach(card => {
     card.addEventListener('click', () => {
-      cards.forEach(c => c.classList.remove('selected'));
+      clearAll();
       card.classList.add('selected');
       card.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
+  digitalOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      clearAll();
+      digitalCard.classList.add('has-selection');
+      opt.classList.add('selected');
+      opt.querySelector('input[type="radio"]').checked = true;
     });
   });
 
@@ -436,9 +568,10 @@
   togStudent.addEventListener('change', () => subPage.classList.add('student-prices'));
 
   document.getElementById('btnContinue').addEventListener('click', () => {
-    const plan = document.querySelector('input[name="plan"]:checked').value;
+    const checked = document.querySelector('input[name="plan"]:checked');
+    if (!checked) { alert('Velg et abonnement først.'); return; }
     const audience = document.querySelector('input[name="audience"]:checked').value;
-    alert('Demo: Du valgte ' + plan + ' (' + audience + '). Videre til betaling med Vipps.');
+    alert('Demo: Du valgte ' + checked.value + ' (' + audience + '). Videre til betaling med Vipps.');
   });
 </script>
 
