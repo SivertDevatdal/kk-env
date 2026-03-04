@@ -208,11 +208,13 @@
       transition: transform .2s ease;
     }
 
-    .plan-card.selected .radio-circle {
+    .plan-card.selected .radio-circle,
+    .digital-option.selected .radio-circle {
       border-color: #d42b2b;
     }
 
-    .plan-card.selected .radio-circle::after {
+    .plan-card.selected .radio-circle::after,
+    .digital-option.selected .radio-circle::after {
       transform: scale(1);
     }
 
